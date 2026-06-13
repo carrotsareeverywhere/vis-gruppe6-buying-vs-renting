@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map of Austria & Break Even Calculator </title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+    <h1>Interactive Map of Austria & Financial Dashboard</h1>
+</header>
+
+<div id="main-viewport-container">
+
+    <div id="intro-sidebar">
+        <h2>Interactive comparison of the long term net-worth difference when purchasing or renting a new Home, in Austria</h2>
+        <p>Many young adults and people who open a new chapter in live, want to move to a new place.</p>
+        <p>With our interactive Map, which shows a detailed avg. price either per federal state or per district, for renting or buying a Home, we want to enable the user to easily compare prices and get a feeling for the possible long term differences in wealth accumulation. We are therefor putting aside the personal incentives to choose either buying or renting a new home and will focus on the financial aspect.</p>
+        <p>The red/yellow lines of the Break-Even Chart represent 2 households wealth accumulation based on regional average additional housing costs. Both have no outstanding loans (House = payed off)  </p>
+        <p><strong>How to use:</strong> Select an asset layer (States or Districts) and click any target region on the map to extract local real estate trends.</p>
+        <p>The input section is pre-loaded with default values. To get a more accurate prediction. please fill out your personal info</p>
+        <p>The price and rent are auto-calculated based on the property size and the avg. rent/buy prices from your selected state/district.</p>
+        <p>The Loan is also auto-calculated based on your Houshold Equity Capital and the price of the property you want to purchase. You can however change it to a different amount. Please note that for the calculation we will take a loan amount less then the calculated laon amount as "you have additional funds" to purchase the Home.</p>
+    </div>
+
+    <div id="app-wrapper">
+        <div id="map-section-wrapper">
+            <div id="map-container">
+                <div id="controls">
+                    <div class="control-row">
+                        <span class="control-label">Layer:</span>
+                        <div class="btn-group">
+                            <button id="btn-states" class="active" onclick="switchLayer('states')">Federal States</button>
+                            <button id="btn-districts" onclick="switchLayer('districts')">Districts</button>
+                        </div>
+                    </div>
+                    <div class="control-row">
+                        <span class="control-label">Color By:</span>
+                        <div class="btn-group">
+                            <button id="btn-color-kaufpreis" class="active" onclick="switchColorMetric('Kaufpreis')">Purchase Price</button>
+                            <button id="btn-color-miete" onclick="switchColorMetric('miete')">Rent Price</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <div id="calculator-inputs-container">
+                <div class="dashboard-columns">
+
+                    <div class="dashboard-col">
+                        <h4>(1) Personal Info</h4>
+                        <div class="input-field-block">
+                            <label for="param-income">Household Monthly Net Income (€)</label>
+                            <input type="number" id="param-income" value="4500">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-capital">Household Equity Capital (€)</label>
+                            <input type="number" id="param-capital" value="50000">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-monthly-expenses">Avg Monthly living expenses <p>(excluding Housing costs) (€)</label>
+                            <input type="number" id="param-monthly-expenses" value="400">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-col">
+                        <h4>(2) Purchase Info</h4>
+                        <div class="input-field-block">
+                            <label for="param-buy-size">Desired Property Size (m²)</label>
+                            <input type="number" id="param-buy-size" value="80">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-price-m2">Price (per m²) (€)</label>
+                            <input type="number" id="param-price-m2" placeholder="Auto-loads from map" disabled>
+                        </div>
+                        <div class="input-field-block">
+                            <div class="label-container" style="display: flex; align-items: center; gap: 8px;">
+                                <label for="param-loan-amount">Loan Principal Amount (€) <br> enable user input: <input type="checkbox" id="toggle-loan-check"> </label>
+
+                            </div>
+                            <input type="number" id="param-loan-amount" placeholder="Auto-calculated if 0" value="0">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-loan-repayment">Monthly Loan Repayment (€)</label>
+                            <input type="number" id="param-loan-repayment" value="1100">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-buy-extra">Monthly Extra Costs (€)</label>
+                            <input type="number" id="param-buy-extra" value="250">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-col">
+                        <h4>(3) Rent Info</h4>
+                        <div class="input-field-block">
+                            <label for="param-rent-size">Desired Property Size (m²)</label>
+                            <input type="number" id="param-rent-size" value="80">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-rent">Monthly Rent (Total €)</label>
+                            <input type="number" id="param-rent" value="1200" disabled>
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-deposit">Upfront Deposit (€)</label>
+                            <input type="number" id="param-deposit" value="3600">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-rent-increase">Expected Rent Increase (%/yr)</label>
+                            <input type="number" id="param-rent-increase" value="2.0" step="0.1">
+                        </div>
+                        <div class="input-field-block">
+                            <label for="param-rent-extra">Monthly Extra Costs (€)</label>
+                            <input type="number" id="param-rent-extra" value="150">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="parameter-actions-wrapper">
+                    <button type="button" id="btn-execute-calculation" onclick="handleManualRecalculate()">Recalculate Horizon</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="info-panel">
+            <h2>Region Statistics</h2>
+            <hr style="border: 0; border-top: 1px solid #eee;">
+            <div id="info-content">
+                <p class="placeholder-text">Click directly on any region within Austria to view details.</p>
+            </div>
+
+            <div id="chart-section-wrapper">
+                <h3>Break-Even Infograph (30-Year Wealth / Net-Worth Projection)</h3>
+
+                <div id="chart-line-toggles">
+                    <label class="toggle-container text-yellow">
+                        <input type="checkbox" id="chk-line-renter" checked onchange="toggleChartLineVisibility()">
+                        User input Rent
+                    </label>
+                    <label class="toggle-container text-red">
+                        <input type="checkbox" id="chk-line-owner" checked onchange="toggleChartLineVisibility()">
+                        User input Purchase
+                    </label>
+                    <label class="toggle-container text-green">
+                        <input type="checkbox" id="chk-line-cum-rent" checked onchange="toggleChartLineVisibility()">
+                        Avg State/District Rent
+                    </label>
+                    <label class="toggle-container text-blue">
+                        <input type="checkbox" id="chk-line-cum-buy" checked onchange="toggleChartLineVisibility()">
+                        Avg State/District Purchase (House is paid off)
+                    </label>
+                </div>
+
+                <div class="chart-canvas-container">
+                    <canvas id="breakEvenChart"></canvas>
+                </div>
+                <div id="break-even-summary-text"></div>
+                <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #ae0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">Read More</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="interactive_map.js"></script>
+
+<div id="detail-modal-overlay" class="modal-overlay" onclick="closeDetailModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="modal-close-btn" onclick="closeDetailModal()">&times;</span>
+        <h3>Detailed Financial Breakdown</h3>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
+        <div id="modal-detailed-text">
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
