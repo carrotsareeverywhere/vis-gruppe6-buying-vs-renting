@@ -226,6 +226,16 @@
 
         currentSection = targetId;
 
+        // --- NEW: Fix Chart.js calculation freeze when returning to dashboard ---
+        if (targetId === "page-dashboard") {
+            // Check if your chart instance exists globally inside interactive_map.js
+            setTimeout(() => {
+                if (window.breakEvenChart && typeof window.breakEvenChart.resize === 'function') {
+                    window.breakEvenChart.resize();
+                }
+            }, 50); // Small timeout allows CSS engine to process layout updates first
+        }
+
         // Lock scroll detection during the 1.5s animation duration
         setTimeout(() => {
             isTransitioning = false;

@@ -245,11 +245,9 @@ function calculateBreakEven() {
     const inputPriceM2 = parseFloat(document.getElementById("param-price-m2").value) || 0;
     const inputLoanAmount = parseFloat(document.getElementById("param-loan-amount").value) || 0;
     const inputLoanRepayment = parseFloat(document.getElementById("param-loan-repayment").value) || 0;
-    const buyExtraCosts = parseFloat(document.getElementById("param-buy-extra").value) || 0;
     const monthlyRent = parseFloat(document.getElementById("param-rent").value) || 0;
     const rentDeposit = parseFloat(document.getElementById("param-deposit").value) || 0;
     const userRentIncreaseRate = parseFloat(document.getElementById("param-rent-increase").value) || 2.0;
-    const rentExtraCosts = parseFloat(document.getElementById("param-rent-extra").value) || 0;
 
     const avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value) || 400;
 
@@ -418,9 +416,8 @@ function calculateBreakEven() {
 
 
         currentAnnualRent *= (1 + rentIncreaseRate);
-        let annualRentExtra = rentExtraCosts * 12;
 
-        let renterSurplus = currentAnnualIncome - currentAnnualRent - annualRentExtra - currentAnnualGeneralExpenses;
+        let renterSurplus = currentAnnualIncome - currentAnnualRent - currentAnnualGeneralExpenses;
         renterSavingsAccount += renterSurplus;
 
         let totalRenterNetWorth = renterSavingsAccount + rentDeposit;
