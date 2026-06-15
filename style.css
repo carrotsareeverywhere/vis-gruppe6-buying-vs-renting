@@ -377,6 +377,14 @@ header {
     border-radius: 4px;
 }
 
+/* Target <small> tags specifically inside your data cards */
+.data-card p small {
+    display: inline-block; /* Allows margins/paddings if you want to space them out later */
+    font-size: 0.6rem;    /* Sets a custom micro-font size relative to root */
+    line-height: 1.3;      /* Tightens line height for smaller text rows */
+    color: #777;           /* Softens the text color slightly so it looks like a footnote */
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;

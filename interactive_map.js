@@ -19,6 +19,10 @@ const stateIsoMap = {
 
 let austrianStatesGeoJSON = null;
 let austrianDistrictsGeoJSON = null;
+let minKaufpreis = Infinity, maxKaufpreis = 0;
+let minMiete = Infinity, maxMiete = 0;
+let kaufpreisThresholds = [];
+let mieteThresholds = [];
 
 async function loadGeoJsonFiles() {
     try {
@@ -35,6 +39,9 @@ async function loadGeoJsonFiles() {
         console.log("GeoJSON data arrays successfully mounted.");
 
         loadMapData(currentLayerType);
+        calculateQuantileThresholds(austrianDistrictsGeoJSON);
+        updateLegendLabels(currentColorMetric);
+        switchColorMetric('Kaufpreis');
 
     } catch (error) {
         console.error("Critical error loading the GeoJSON files:", error);
@@ -46,6 +53,34 @@ async function loadGeoJsonFiles() {
                 Failed to load regional data files. Please ensure you are running a local web server (e.g., Live Server) and the filenames match.
             </div>`;
         }
+    }
+}
+
+function calculateQuantileThresholds(geoJSONData) {
+    const features = geoJSONData.features || [];
+
+    // Extract and sort all valid values from the dataset
+    let kaufpreisArray = features
+        .map(f => parseFloat(f.properties.Kaufpreis))
+        .filter(v => !isNaN(v) && v > 0)
+        .sort((a, b) => a - b);
+
+    let mieteArray = features
+        .map(f => parseFloat(f.properties.miete))
+        .filter(v => !isNaN(v) && v > 0)
+        .sort((a, b) => a - b);
+
+    const steps = 11;
+    kaufpreisThresholds = [];
+    mieteThresholds = [];
+
+    // Find the exact boundaries for 11 equal-sized buckets
+    for (let i = 1; i < steps; i++) {
+        let percentileIdx = Math.floor((i / steps) * kaufpreisArray.length);
+        kaufpreisThresholds.push(kaufpreisArray[percentileIdx]);
+
+        let mietePercentileIdx = Math.floor((i / steps) * mieteArray.length);
+        mieteThresholds.push(mieteArray[mietePercentileIdx]);
     }
 }
 
@@ -66,30 +101,8 @@ function extractNumericValue(val) {
     return parseFloat(cleaned) || 0;
 }
 
-
 function getColorForValue(value, metric) {
-    let min, max;
-
-    //Values are not the exact minimum and maximum but rather a try and error approach for a more logical colouring.
-    if (metric === 'Kaufpreis') {
-        min = 1850;
-        max = 4500;
-    } else { // miete
-        min = 7.5;
-        max = 11;
-    }
-
-    // If data is missing or 0, return a neutral gray
-    if (!value || value === 0) return '#b0b0b0';
-
-    // Calculate where the value sits between 0 and 1
-    let ratio = (value - min) / (max - min);
-    if (ratio < 0) ratio = 0;
-    if (ratio > 1) ratio = 1;
-
-    // Segregate the heatmap into 11 distinct color steps
-    const steps = 11;
-    const bucket = Math.floor(ratio * (steps - 1));
+    if (!value || value === 0) return '#b0b0b0'; // Grey if no data is available
 
     // Array of 11 distinct colors transitioning from Green -> Yellow -> Red
     const colorPalette = [
@@ -105,6 +118,13 @@ function getColorForValue(value, metric) {
         "#B22222",
         "#7A0000"
     ];
+
+    const thresholds = (metric === 'Kaufpreis') ? kaufpreisThresholds : mieteThresholds;
+
+    let bucket = 0;
+    while (bucket < thresholds.length && value > thresholds[bucket]) {
+        bucket++;
+    }
 
     return colorPalette[bucket];
 }
@@ -143,7 +163,10 @@ function onEachFeature(feature, layer) {
                     <div class="data-card">
                         <h3>${props.name || 'Unknown Province'}</h3>
                         <p style="margin-top: 8px;"><strong>Avg. Kaufpreis:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
-                        <p style="margin-top: 4px;"><strong>Avg. Miete:</strong> ${props.miete || 'Data Pending'} (per m²) (€)</p>
+                        <p style="margin-top: 4px;"><strong>Avg. Miete:</strong> ${props.miete || 'Data Pending'} (per m²) (€) 
+                        <br> <small>Bestandsmieten sind inkl. Betriebskosten laut Statistik Austria</small> 
+                        <br> <small>Ausgenommen geförderte Gemeindewohnungen in Wien</small>
+                        </p>
                     </div>
                 `;
             } else {
@@ -154,8 +177,8 @@ function onEachFeature(feature, layer) {
                     <div class="data-card">
                         <h3>${props.name || 'Unknown District'}</h3>
                         <p style="color: #666; font-size: 0.9rem;">Bundesland: ${stateName}</p>
-                        <p style="margin-top: 8px;"><strong>Kaufpreis:</strong> ${props.Kaufpreis || 'Data Pending'}</p>
-                        <p style="margin-top: 4px;"><strong>Miete:</strong> ${props.miete || 'Data Pending'}</p>
+                        <p style="margin-top: 8px;"><strong>Kaufpreis:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
+                        <p style="margin-top: 4px;"><strong>Miete:</strong> ${props.miete || 'Data Pending'} (per m²) (€)</p>
                     </div>
                 `;
             }
@@ -237,42 +260,36 @@ function toggleChartLineVisibility() {
 }
 
 function updateLegendLabels(metric) {
-    let min, max;
-
-    if (metric === 'Kaufpreis') {
-        min = 1850;
-        max = 4500;
-    } else { // miete
-        min = 7.5;
-        max = 11;
-    }
-
     const steps = 11;
-    const stepSize = (max - min) / (steps - 1);
+    const thresholds = (metric === 'Kaufpreis') ? kaufpreisThresholds : mieteThresholds;
 
     for (let i = 0; i < steps; i++) {
         const labelElement = document.getElementById(`legend-label-${steps - i}`);
+        if (!labelElement) continue;
 
-        if (labelElement) {
-            let labelText = "";
+        let labelText = "";
 
-            if (i === 0) {
-                labelText = `< ${Math.round(min)}${" €"}`;
-            } else if (i === steps - 1) {
-                labelText = `> ${Math.round(max)}${" €"}`;
+        if (i === 0) {
+            // First bucket (Cheapest)
+            let upper = thresholds[0];
+            labelText = `< ${metric === 'miete' ? upper.toFixed(1) : Math.round(upper)} €`;
+        } else if (i === steps - 1) {
+            // Last bucket (Most Expensive)
+            let lower = thresholds[thresholds.length - 1];
+            labelText = `> ${metric === 'miete' ? lower.toFixed(1) : Math.round(lower)} €`;
+        } else {
+            // Intermediate ranges
+            let lower = thresholds[i - 1];
+            let upper = thresholds[i];
+
+            if (metric === 'miete') {
+                labelText = `${lower.toFixed(1)} € - ${upper.toFixed(1)} €`;
             } else {
-                let currentLowerBound = min + (i - 0.5) * stepSize;
-                let currentUpperBound = min + (i + 0.5) * stepSize;
-
-                if (metric === 'miete') {
-                    labelText = `${currentLowerBound.toFixed(1)}${" €"} - ${currentUpperBound.toFixed(1)}${" €"}`;
-                } else {
-                    labelText = `${Math.round(currentLowerBound)}${" €"} - ${Math.round(currentUpperBound)}${" €"}`;
-                }
+                labelText = `${Math.round(lower)} € - ${Math.round(upper)} €`;
             }
-
-            labelElement.textContent = labelText;
         }
+
+        labelElement.textContent = labelText;
     }
 }
 
@@ -427,7 +444,6 @@ function calculateBreakEven() {
             // Guard rails in case the user's input is lower than the structural interest requirement
             if (principalRepayment < 0) {
                 principalRepayment = 0;
-                // The loan is growing because the user isn't covering the interest (Negative Amortization)
                 buyerRemainingLoan += (interestPayment - dynamicAnnualPayment);
             } else if (principalRepayment > buyerRemainingLoan) {
                 // If the payment is larger than the final remaining debt it is capped
