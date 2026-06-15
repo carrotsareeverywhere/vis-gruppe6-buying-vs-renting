@@ -238,7 +238,6 @@ function toggleChartLineVisibility() {
 
 function updateLegendLabels(metric) {
     let min, max;
-    let currencySymbol = "€";
 
     if (metric === 'Kaufpreis') {
         min = 1850;
@@ -249,26 +248,26 @@ function updateLegendLabels(metric) {
     }
 
     const steps = 11;
-    const stepSize = (max - min) / (steps - 1); // Calculates the span of each middle bucket
+    const stepSize = (max - min) / (steps - 1);
 
     for (let i = 0; i < steps; i++) {
-        const labelElement = document.getElementById(`legend-label-${i + 1}`);
+        const labelElement = document.getElementById(`legend-label-${steps - i}`);
 
         if (labelElement) {
             let labelText = "";
 
             if (i === 0) {
-                labelText = `> ${currencySymbol}${Math.round(max)}`;
+                labelText = `< ${Math.round(min)}${" €"}`;
             } else if (i === steps - 1) {
-                labelText = `< ${currencySymbol}${Math.round(min)}`;
+                labelText = `> ${Math.round(max)}${" €"}`;
             } else {
                 let currentLowerBound = min + (i - 0.5) * stepSize;
                 let currentUpperBound = min + (i + 0.5) * stepSize;
 
                 if (metric === 'miete') {
-                    labelText = `${currencySymbol}${currentLowerBound.toFixed(1)} - ${currencySymbol}${currentUpperBound.toFixed(1)}`;
+                    labelText = `${currentLowerBound.toFixed(1)}${" €"} - ${currentUpperBound.toFixed(1)}${" €"}`;
                 } else {
-                    labelText = `${currencySymbol}${Math.round(currentLowerBound)} - ${currencySymbol}${Math.round(currentUpperBound)}`;
+                    labelText = `${Math.round(currentLowerBound)}${" €"} - ${Math.round(currentUpperBound)}${" €"}`;
                 }
             }
 
