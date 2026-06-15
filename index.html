@@ -32,7 +32,7 @@
                 <h2>Interactive comparison of the long term net-worth difference when purchasing or renting a new Home, in Austria</h2>
                 <p>Many young adults and people who open a new chapter in live, want to move to a new place.</p>
                 <p>With our interactive Map, which shows a detailed avg. price either per federal state or per district, for renting or buying a Home, we want to enable the user to easily compare prices and get a feeling for the possible long term differences in wealth accumulation. We are therefor putting aside the personal incentives to choose either buying or renting a new home and will focus on the financial aspect.</p>
-                <p>The red/yellow lines of the Break-Even Chart represent 2 households wealth accumulation based on regional average additional housing costs. Both have no outstanding loans (House = payed off)  </p>
+                <p>The green/blue lines of the Break-Even Chart represent 2 households wealth accumulation, based on regional average additional housing costs. Both have no outstanding loans (House = payed off)  </p>
                 <p><strong>How to use:</strong> Select an asset layer (States or Districts) and click any target region on the map to extract local real estate trends.</p>
                 <p>The input section is pre-loaded with default values. To get a more accurate prediction. please fill out your personal info</p>
                 <p>The price and rent are auto-calculated based on the property size and the avg. rent/buy prices from your selected state/district.</p>
@@ -58,7 +58,54 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="map"></div>
+                        <div id="map">
+                            <div id="map-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #7A0000;"></span>
+                                    <span class="legend-text" id="legend-label-1">Label 1</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #B22222;"></span>
+                                    <span class="legend-text" id="legend-label-2">Label 2</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #D4551A;"></span>
+                                    <span class="legend-text" id="legend-label-3">Label 3</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #E68400;"></span>
+                                    <span class="legend-text"id="legend-label-4">Label 4</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #F4B000;"></span>
+                                    <span class="legend-text" id="legend-label-5">Label 5</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #FFD700;"></span>
+                                    <span class="legend-text" id="legend-label-6">Label 6</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #C7D83A;"></span>
+                                    <span class="legend-text" id="legend-label-7">Label 7</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #7DAA22;"></span>
+                                    <span class="legend-text" id="legend-label-8">Label 8</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #3F7F1F;"></span>
+                                    <span class="legend-text" id="legend-label-9">Label 9</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #1E5A1E;"></span>
+                                    <span class="legend-text" id="legend-label-10">Label 10</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background-color: #0B3D0B;"></span>
+                                    <span class="legend-text" id="legend-label-11">Label 11</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="calculator-inputs-container">
@@ -246,6 +293,28 @@
     window.addEventListener('wheel', function(e) {
         if (isTransitioning) return;
 
+        // Check if the user is scrolling inside a container that has an active scrollbar
+        // This looks for elements like your #intro-sidebar or #info-panel
+        const scrollableParent = e.target.closest('#intro-sidebar, #info-panel, #modal-detailed-text');
+
+        if (scrollableParent) {
+            // Determine if the element is actually scrollable right now (content exceeds height)
+            const isScrollable = scrollableParent.scrollHeight > scrollableParent.clientHeight;
+
+            if (isScrollable) {
+                // Check if the user has reached the extreme boundaries
+                const isScrollingDown = e.deltaY > 0;
+                const isAtBottom = Math.abs(scrollableParent.scrollHeight - scrollableParent.clientHeight - scrollableParent.scrollTop) < 2;
+                const isAtTop = scrollableParent.scrollTop === 0;
+
+                // If they are scrolling down but haven't hit the bottom, let them scroll the text
+                if (isScrollingDown && !isAtBottom) return;
+                // If they are scrolling up but haven't hit the top, let them scroll the text
+                if (!isScrollingDown && !isAtTop) return;
+            }
+        }
+
+        // Page-to-page navigation triggers only when outside sidebars OR at the scroll limits
         if (e.deltaY > 30 && currentSection === "page-dashboard") {
             // Scrolling Down
             targetSection("page-insights");
@@ -253,7 +322,7 @@
             // Scrolling Up
             targetSection("page-dashboard");
         }
-    }, { passive: true });
+    }, { passive: false });
 
     // Handle Navbar Link Clicks manually to intercept jumping behavior
     document.querySelectorAll('.nav-item').forEach(link => {

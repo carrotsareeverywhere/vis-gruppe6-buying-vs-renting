@@ -201,6 +201,7 @@ function switchLayer(type) {
             <p class="placeholder-text">Click directly on any ${type === 'states' ? 'state' : 'district'} within Austria to view details.</p>
         `;
     }
+    updateLegendLabels(currentColorMetric);
     loadMapData(type);
     calculateBreakEven();
 }
@@ -209,6 +210,8 @@ function switchColorMetric(metricName) {
     currentColorMetric = metricName;
     document.getElementById('btn-color-kaufpreis').classList.toggle('active', metricName === 'Kaufpreis');
     document.getElementById('btn-color-miete').classList.toggle('active', metricName === 'miete');
+
+    updateLegendLabels(currentColorMetric);
     loadMapData(currentLayerType);
 }
 
@@ -231,6 +234,47 @@ function toggleChartLineVisibility() {
     breakEvenChartInstance.setDatasetVisibility(3, isCalculationTriggered && showCumBuy);
 
     breakEvenChartInstance.update();
+}
+
+function updateLegendLabels(metric) {
+    let min, max;
+    let currencySymbol = "€";
+
+    if (metric === 'Kaufpreis') {
+        min = 1850;
+        max = 4500;
+    } else { // miete
+        min = 7.5;
+        max = 11;
+    }
+
+    const steps = 11;
+    const stepSize = (max - min) / (steps - 1); // Calculates the span of each middle bucket
+
+    for (let i = 0; i < steps; i++) {
+        const labelElement = document.getElementById(`legend-label-${i + 1}`);
+
+        if (labelElement) {
+            let labelText = "";
+
+            if (i === 0) {
+                labelText = `> ${currencySymbol}${Math.round(max)}`;
+            } else if (i === steps - 1) {
+                labelText = `< ${currencySymbol}${Math.round(min)}`;
+            } else {
+                let currentLowerBound = min + (i - 0.5) * stepSize;
+                let currentUpperBound = min + (i + 0.5) * stepSize;
+
+                if (metric === 'miete') {
+                    labelText = `${currencySymbol}${currentLowerBound.toFixed(1)} - ${currencySymbol}${currentUpperBound.toFixed(1)}`;
+                } else {
+                    labelText = `${currencySymbol}${Math.round(currentLowerBound)} - ${currencySymbol}${Math.round(currentUpperBound)}`;
+                }
+            }
+
+            labelElement.textContent = labelText;
+        }
+    }
 }
 
 function calculateBreakEven() {
@@ -561,6 +605,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // Trigger file fetches ONLY after Leaflet sets up the DOM node anchor
         loadGeoJsonFiles();
+        updateLegendLabels('Kaufpreis');
     }
 });
 
