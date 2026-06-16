@@ -273,9 +273,7 @@
 
         currentSection = targetId;
 
-        // --- NEW: Fix Chart.js calculation freeze when returning to dashboard ---
         if (targetId === "page-dashboard") {
-            // Check if your chart instance exists globally inside interactive_map.js
             setTimeout(() => {
                 if (window.breakEvenChart && typeof window.breakEvenChart.resize === 'function') {
                     window.breakEvenChart.resize();
@@ -289,42 +287,27 @@
         }, 1500);
     }
 
-    // Capture standard mouse wheel / trackpad scroll
     window.addEventListener('wheel', function(e) {
         if (isTransitioning) return;
 
-        // Check if the user is scrolling inside a container that has an active scrollbar
-        // This looks for elements like your #intro-sidebar or #info-panel
-        const scrollableParent = e.target.closest('#intro-sidebar, #info-panel, #modal-detailed-text');
+        // Checks if the cursor is hovering over the map, sidebar, or info panel
+        // (e.g. all the content that could possibly have a scrollable interaction)
+        const interactiveParent = e.target.closest('#intro-sidebar, #info-panel, #map, .leaflet-container');
 
-        if (scrollableParent) {
-            // Determine if the element is actually scrollable right now (content exceeds height)
-            const isScrollable = scrollableParent.scrollHeight > scrollableParent.clientHeight;
-
-            if (isScrollable) {
-                // Check if the user has reached the extreme boundaries
-                const isScrollingDown = e.deltaY > 0;
-                const isAtBottom = Math.abs(scrollableParent.scrollHeight - scrollableParent.clientHeight - scrollableParent.scrollTop) < 2;
-                const isAtTop = scrollableParent.scrollTop === 0;
-
-                // If they are scrolling down but haven't hit the bottom, let them scroll the text
-                if (isScrollingDown && !isAtBottom) return;
-                // If they are scrolling up but haven't hit the top, let them scroll the text
-                if (!isScrollingDown && !isAtTop) return;
-            }
+        // If the user is interacting with any of these containers,
+        // we completely block the page transition, allowing only native container behaviors.
+        if (interactiveParent) {
+            return;
         }
 
-        // Page-to-page navigation triggers only when outside sidebars OR at the scroll limits
+        // Page-to-page navigation triggers ONLY when scrolling outside the interactive containers
         if (e.deltaY > 30 && currentSection === "page-dashboard") {
-            // Scrolling Down
             targetSection("page-insights");
         } else if (e.deltaY < -30 && currentSection === "page-insights") {
-            // Scrolling Up
             targetSection("page-dashboard");
         }
-    }, { passive: false });
+    }, { passive: true });
 
-    // Handle Navbar Link Clicks manually to intercept jumping behavior
     document.querySelectorAll('.nav-item').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();

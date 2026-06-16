@@ -64,7 +64,7 @@ header {
 #main-viewport-container {
     display: flex;
     width: 100%;
-    height: 95%;
+    height: 90%;
     flex: 1; /* Instructs layout container to accurately expand vertically */
     padding: 1.5vw;
     gap: 1.5vw;
