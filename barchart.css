@@ -1,0 +1,117 @@
+#barchart-viewport-container {
+    display: flex;
+    width: 100%;
+    height: 95%;
+    flex: 1;
+    padding: 1.5vw;
+    gap: 1.5vw;
+    overflow: hidden;
+}
+
+#barchart-sidebar {
+    flex: 0.22;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: #333;
+    justify-content: flex-start;
+    padding: 10px;
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+#barchart-sidebar h2 { font-size: clamp(1.2rem, 6cqw, 1.8rem); line-height: 1.3; color: #ae0000;}
+#barchart-sidebar p { font-size: clamp(0.85rem, 4.5cqw, 1rem); line-height: 1.4; color: #555;}
+
+#barchart-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    overflow: hidden;
+    height: 100%;
+}
+
+.filter-section {
+    padding: 15px 20px 5px 20px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #eef2f5;
+}
+
+#barchart-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #eef2f5;
+    margin-top: 8px;
+}
+
+#barchart-chart-wrapper {
+    flex: 1;
+    min-height: 200px;
+    padding: 10px 25px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#barchart-canvas {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    height: 100%;
+}
+
+/* D3 Tooltip */
+.d3-tooltip {
+    position: absolute;
+    background: #f8f9fa;
+    border-left: 4px solid #ae0000;
+    padding: 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 10;
+    transform: translate(-175%, -150%);
+    font-size: 0.8rem;
+    color: #333;
+    min-width: 220px;
+}
+.tooltip-title { font-weight: 700; margin-bottom: 6px; border-bottom: 1px solid #eef2f5; padding-bottom: 4px; }
+.tooltip-row { display: flex; justify-content: space-between; gap: 16px; margin-top: 4px; }
+.tooltip-value { font-weight: 700; }
+
+/* SVG formatting */
+.domain { stroke: #eef2f5; }
+.tick line { stroke: #eef2f5; }
+.tick text { fill: #666; font-size: 11px; }
+.axis-label { font-size: 12px; font-weight: 600; fill: #555; }
+rect { transition: opacity 0.2s ease; }
+
+/* Cost Estimator Bottom Block */
+#calculator-section {
+    padding: 15px 25px;
+    background: #fafafa;
+    border-top: 1px solid #eef2f5;
+    flex-shrink: 0;
+}
+.section-heading { font-size: 1rem; color: #ae0000; margin-bottom: 12px; font-weight: 700; }
+.calc-grid { display: flex; gap: 20px; align-items: center; }
+.calc-inputs { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.slider-group { display: flex; gap: 12px; align-items: center; }
+.slider-group input[type="range"] { flex: 1; accent-color: #ae0000; }
+.slider-group input[type="number"] { width: 70px; text-align: center; }
+.calc-results { flex: 0.8; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; background: #ffffff; border: 1px solid #eef2f5; border-radius: 6px; }
+.result-label { font-size: 0.8rem; color: #666; font-weight: 700; text-transform: uppercase; }
+.result-value { font-size: 2rem; font-weight: 800; color: #ae0000; margin: 4px 0; }
+.result-formula { font-size: 0.8rem; color: #888; background: #f4f4f4; padding: 4px 8px; border-radius: 4px; }
+.mt-15 { margin-top: 10px; }

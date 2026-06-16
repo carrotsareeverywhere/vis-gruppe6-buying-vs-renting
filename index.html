@@ -7,16 +7,18 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="barchart.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
 
 <nav id="site-navigation">
     <div class="nav-brand">Austria Real Estate Hub</div>
     <div class="nav-links">
-        <a href="#page-dashboard" class="nav-item active">Interactive Map & Break-Even Calculator</a>
+        <a href="#page-dashboard" class="nav-item active">Map & Break-Even Calculator</a>
         <a href="#page-insights" class="nav-item">Page 2</a>
-        <a href="#page-insights" class="nav-item">Page 3</a>
-        <a href="#page-insights" class="nav-item">Page 4</a>
+        <a href="#page-barchart" class="nav-item">Housing Costs</a>
+        <a href="#page-4" class="nav-item">Page 4</a>
     </div>
 </nav>
 
@@ -229,11 +231,74 @@
         </div>
     </section>
 
+    <section id="page-barchart" class="snap-section">
+        <header>
+            <h1>Average Monthly Housing Costs in Austria</h1>
+        </header>
+
+        <div id="barchart-viewport-container">
+            <div id="barchart-sidebar">
+                <h2>Understanding the Financial Burden Across Tenures</h2>
+                <p>Based on EU-SILC and Mikrozensus data (Statistik Austria, 2025).</p>
+                <p>This chart compares the total monthly financial burden and component breakdowns across different housing tenures in Austria.</p>
+                <p><strong>How to use:</strong> Use the checkboxes to isolate specific housing types. Hover over individual bar segments to view detailed splits.</p>
+            </div>
+
+            <div id="barchart-wrapper">
+                <div class="filter-section">
+                    <h3 class="section-subheading" style="margin-bottom: 8px;">Compare Housing Types</h3>
+                    <div id="barchart-toggles">
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="house_owner" checked> House Owner</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="apt_owner" checked> Apt. Owner</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="municipal" checked> Municipal</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="cooperative" checked> Cooperative</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="other_rent" checked> Other Rent</label>
+                    </div>
+                </div>
+
+                <div id="barchart-chart-wrapper">
+                    <div id="barchart-canvas"></div>
+                    <div id="barchart-tooltip" class="d3-tooltip data-card"></div>
+                </div>
+
+                <div id="calculator-section">
+                    <h3 class="section-heading">Cost Estimator (Based on Average €/m²)</h3>
+                    <div class="calc-grid">
+                        <div class="calc-inputs">
+                            <div class="input-field-block">
+                                <label for="calc-type">Housing Type</label>
+                                <select id="calc-type">
+                                    <option value="house_owner">House Owner</option>
+                                    <option value="apt_owner">Apt. Owner</option>
+                                    <option value="municipal">Municipal Rent</option>
+                                    <option value="cooperative">Cooperative Rent</option>
+                                    <option value="other_rent">Other Rent</option>
+                                </select>
+                            </div>
+                            <div class="input-field-block mt-15">
+                                <label for="calc-number">Property Size (m²)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="calc-slider" min="20" max="300" value="80" step="1">
+                                    <input type="number" id="calc-number" min="20" max="300" value="80">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calc-results data-card">
+                            <div class="result-label">Estimated Monthly Cost</div>
+                            <div class="result-value" id="calc-result">€328.00</div>
+                            <div class="result-formula" id="calc-formula">80 m² × 4.1 €/m²</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="interactive_map.js"></script>
+<script src="barchart.js"></script>
 
 <div id="detail-modal-overlay" class="modal-overlay" onclick="closeDetailModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
