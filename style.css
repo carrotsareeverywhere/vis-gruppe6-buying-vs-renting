@@ -461,8 +461,8 @@ header {
     background: #ffffff;
     padding: 25px;
     border-radius: 12px;
-    width: 90%;
-    max-width: 550px;
+    width: 75%;
+    max-width: 85%;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
     position: relative;
     transform: scale(0.85);
@@ -480,10 +480,11 @@ header {
 }
 
 #modal-detailed-text {
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     color: #444;
     max-height: 60vh;
+    min-width: 75%;
     overflow-y: auto;
 }
 
@@ -492,7 +493,7 @@ header {
     position: absolute;
     top: 15px;
     right: 20px;
-    font-size: 1.6rem;
+    font-size: 2.0rem;
     font-weight: bold;
     color: #aaa;
     cursor: pointer;
@@ -600,6 +601,17 @@ header {
     font-size: 0.9rem;
     color: #666;
     line-height: 1.6;
+}
+
+@keyframes popUpFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 @media (max-width: 1100px) {

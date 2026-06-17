@@ -165,16 +165,27 @@
                                 <input type="number" id="param-rent-increase" value="2.0" step="0.1">
                             </div>
                         </div>
-
                         <div class="parameter-actions-wrapper">
                             <button type="button" id="btn-execute-calculation" onclick="handleManualRecalculate()">Recalculate Break Even Point</button>
                         </div>
-                    </div>
-                    <div id="debt-warning-banner" style="display: none; background-color: #fdf2f2; border-left: 4px solid #ae0000; padding: 12px; margin-top: 15px; border-radius: 4px;">
-                        <h4 style="color: #ae0000; margin: 0 0 5px 0; font-size: 0.9rem;">⚠️ Insufficient Loan Repayment</h4>
-                        <p style="margin: 0; font-size: 0.85rem; color: #333; line-height: 1.4;">
-                            Your current monthly loan repayment value is too low to fully amortize the mortgage. After 30 years, you would still owe the bank <strong id="remaining-debt-amount" style="color: #ae0000;">0 €</strong>.
-                        </p>
+                        <div id="debt-warning-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.4); z-index: 10000; align-items: center; justify-content: center;">
+
+                            <div id="debt-warning-popup" style="background-color: #ffffff; border-top: 5px solid #ae0000; width: clamp(300px, 35vw, 520px); padding: clamp(15px, 1.5vw, 25px); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; animation: popUpFadeIn 0.3s ease-out;">
+
+                                <button type="button" onclick="hideDebtWarningPopup()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer; font-weight: bold; line-height: 1;">&times;</button>
+
+                                <h4 id="warning-title" style="color: #ae0000; margin: 0 0 12px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                    ⚠️ Warning
+                                </h4>
+
+                                <div id="warning-description" style="font-size: 0.9rem; color: #333; line-height: 1.5;">
+                                </div>
+
+                                <button type="button" onclick="hideDebtWarningPopup()" style="width: 100%; margin-top: 15px; background-color: #ae0000; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    Adjust Parameters
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -184,7 +195,6 @@
                     <div id="info-content">
                         <p class="placeholder-text">Click directly on any region within Austria to view details.</p>
                     </div>
-
                     <div id="chart-section-wrapper">
                         <h3>Break-Even Infograph (30-Year Wealth / Net-Worth Projection)</h3>
                         <div id="chart-line-toggles">
@@ -205,7 +215,7 @@
                             <canvas id="breakEvenChart"></canvas>
                         </div>
                         <div id="break-even-summary-text"></div>
-                        <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #ae0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">Read More</button>
+                        <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #ae0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">What does this mean in Detail? (Read More)</button>
                     </div>
                 </div>
             </div>
@@ -296,7 +306,7 @@
 
         // Checks if the cursor is hovering over the map, sidebar, or info panel
         // (e.g. all the content that could possibly have a scrollable interaction)
-        const interactiveParent = e.target.closest('#intro-sidebar, #info-panel, #map, .leaflet-container, #calculator-inputs-container');
+        const interactiveParent = e.target.closest('#intro-sidebar, #info-panel, #map, .leaflet-container, #calculator-inputs-container, #detail-modal-overlay');
 
         // If the user is interacting with any of these containers,
         // we completely block the page transition, allowing only native container behaviors.
