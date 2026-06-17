@@ -429,13 +429,11 @@ function calculateBreakEven() {
         currentAnnualIncome *= (1 + incomeGrowthRate);
         currentAnnualGeneralExpenses *= (1 + 0.037); // Applying standard inflation rate to all none housing related extra costs.
 
-        // BUYER CALCULATIONS
         buyerHomeValue *= (1 + appreciationRate);
 
         let dynamicAnnualPayment = annualMortgagePayment;
         let principalRepayment = 0;
 
-        // If there is still a loan balance to pay off
         if (buyerRemainingLoan > 0) {
             let interestPayment = buyerRemainingLoan * mortgageRate;
 
@@ -492,6 +490,34 @@ function calculateBreakEven() {
 
     renderLineChartCanvas(labels, renterNetWorthData, ownerNetWorthData, cumulativeRentPaidData, cumulativePurchasePaidData);
     updateBreakEvenSummary(breakEvenYear);
+    checkLoanRepaymentStatus(annualMortgagePayment, baseMortgagePayment)
+    }
+}
+
+function checkLoanRepaymentStatus(annualMortgagePayment, baseMortgagePayment) {
+    if (annualMortgagePayment*30 < baseMortgagePayment) {
+        const remainingDebt = baseMortgagePayment - annualMortgagePayment*30;
+        showDebtWarningPopup(remainingDebt);
+    } else {
+        hideDebtWarningPopup();
+    }
+}
+
+function showDebtWarningPopup(amountOwed) {
+    const banner = document.getElementById('debt-warning-banner');
+    const amountSpan = document.getElementById('remaining-debt-amount');
+
+    if (banner && amountSpan) {
+        // Format the debt amount nicely with thousands separators
+        amountSpan.textContent = Math.round(amountOwed).toLocaleString('de-AT') + " €";
+        banner.style.display = 'block'; // Make the pop-up visible
+    }
+}
+
+function hideDebtWarningPopup() {
+    const banner = document.getElementById('debt-warning-banner');
+    if (banner) {
+        banner.style.display = 'none'; // Hide it if payments are sufficient
     }
 }
 

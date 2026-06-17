@@ -167,7 +167,7 @@ header {
 
 #map-container {
     flex: 1;
-    min-height: 220px;
+    min-height: 50%;
     position: relative;
     background: #f0f4f8;
 }
@@ -178,64 +178,112 @@ header {
     z-index: 1;
 }
 
+/* --- Calculator Inputs Panel Container --- */
 #calculator-inputs-container {
     background: #fafafa;
-    padding: 15px 20px;
     border-top: 1px solid #eef2f5;
+    padding: clamp(10px, 1.2vw, 20px);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    flex-shrink: 0;
-}
-
-.dashboard-columns {
-    display: flex;
-    gap: 20px;
-}
-
-.dashboard-col {
+    gap: clamp(12px, 1vw, 20px);
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* --- The Table Grid Engine Layout --- */
+.inputs-table-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Forms 3 perfect structural columns */
+    gap: clamp(10px, 1vw, 18px);          /* Uniform spacing across lines */
+    width: 100%;
+    align-items: end;                     /* Ensures input data fields sit on identical horizontal axes */
+}
+
+/* --- Table Headers --- */
+.table-header {
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    color: #ae0000;
+    font-weight: 700;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #ae0000;
+    margin-bottom: 4px;
+}
+
+/* --- Table Cells Configuration --- */
+.table-cell {
     display: flex;
     flex-direction: column;
     gap: 6px;
-}
-
-.dashboard-col h4 {
-    font-size: 0.8rem;
-    color: #ae0000;
-    text-transform: uppercase;
-    border-bottom: 1px solid #eef2f5;
-    padding-bottom: 3px;
-}
-
-.input-field-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.input-field-block label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #666;
-}
-
-.input-field-block input {
-    padding: 5px 10px;
-    border: 1px solid #dcdfe6;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    outline: none;
     width: 100%;
 }
 
-.input-field-block input:focus {
-    border-color: #ae0000;
+.table-cell.empty-cell {
+    display: block;
+    height: 1px; /* Keeps layout system from collapsing placeholder spaces */
 }
 
+/* --- Labels --- */
+.table-cell label {
+    font-size: clamp(0.72rem, 0.85vw, 0.85rem);
+    color: #444;
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: clamp(0.5rem, 5vw, 0.75rem);
+}
+
+/* --- Data Fields Inputs --- */
+.table-cell input[type="number"] {
+    width: 100%;
+    padding: clamp(6px, 0.5vw, 10px) clamp(8px, 0.7vw, 12px);
+    font-size: clamp(0.75rem, 0.95vw, 0.9rem);
+    border: 1px solid #ccd4da;
+    border-radius: 4px;
+    height: clamp(32px, 2.2vw, 40px);
+    box-sizing: border-box;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease;
+}
+
+/* Disabled/Autoloaded block visual indicator style */
+.table-cell input[type="number"]:disabled {
+    background-color: #eef2f5;
+    color: #777;
+    border-color: #dddfe2;
+    cursor: not-allowed;
+}
+
+.table-cell input[type="number"]:focus:not(:disabled) {
+    border-color: #ae0000;
+    outline: none;
+}
+
+/* --- Action Button Wrapper Bar --- */
 .parameter-actions-wrapper {
+    width: 100%;
     display: flex;
     justify-content: flex-end;
+    border-top: 1px solid #eef2f5;
+    padding-top: clamp(10px, 0.8vw, 16px);
+    margin-top: 4px;
+}
+
+.parameter-actions-wrapper button {
+    background-color: #ae0000;
+    color: #ffffff;
+    border: none;
+    padding: clamp(8px, 0.7vw, 12px) clamp(16px, 1.5vw, 24px);
+    font-size: clamp(0.8rem, 1vw, 0.9rem);
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: background-color 0.2s ease;
+}
+
+.parameter-actions-wrapper button:hover {
+    background-color: #8c0000;
 }
 
 #btn-execute-calculation {
@@ -253,12 +301,11 @@ header {
     flex: 1;
     background: #ffffff;
     padding: 20px;
-    display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
+    display: flex;
+    overflow: auto;
+    font-size: clamp(5px, 2vw, 12px);
 }
-
 #info-content {
     margin-bottom: 15px;
     flex-shrink: 0;
@@ -271,6 +318,7 @@ header {
     padding-top: 15px;
     flex: 1;
     min-height: 0;
+    font-size: clamp(5px, 1vw, 12px);
 }
 
 #chart-line-toggles {
@@ -309,7 +357,7 @@ header {
     width: 100%;
     flex: 1;
     min-height: 200px;
-    maxn-height: 350px;
+    max-height: 450px;
 }
 
 #break-even-summary-text {
@@ -320,7 +368,6 @@ header {
     border-radius: 5px;
     border-left: 4px solid #909399;
     margin-top: 12px;
-    flex-shrink: 0;
 }
 
 #controls {
@@ -561,6 +608,6 @@ header {
     #intro-sidebar { max-width: 100%; width: 100%; }
     #app-wrapper { flex-direction: column; height: auto; }
     #map-section-wrapper { border-right: none; border-bottom: 1px solid #eef2f5; height: 500px; }
-    #map-container { height: 350px; }
+    #map-container { height: 350px; min-height: 350px}
     #info-panel { height: 600px; }
 }
