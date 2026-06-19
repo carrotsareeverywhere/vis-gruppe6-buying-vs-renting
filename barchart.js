@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let globalData = [];
 
     // Load Data
-    d3.json("data.json").then(rawData => {
+    d3.json("bar_chart_data.json").then(rawData => {
         globalData = rawData;
 
         // Initial Draw
