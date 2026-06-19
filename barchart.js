@@ -77,12 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         svg.append("text").attr("class", "axis-label").attr("text-anchor", "end").attr("x", width).attr("y", height + margin.bottom - 5).text("Type of Housing");
 
-        // Clip Path for animation
+        // Clip Path for animation (plays every time updateChart is called)
         const defs = svg.append("defs");
         const clipRects = defs.selectAll("clipPath").data(scaledData).enter().append("clipPath").attr("id", (d, i) => `clip-${i}`)
             .append("rect").attr("x", d => x(d.type)).attr("y", height).attr("width", x.bandwidth()).attr("height", 0);
 
-        clipRects.transition().duration(1200).ease(d3.easeCubicOut).delay((d, i) => i * 100).attr("y", 0).attr("height", height);
+        clipRects.transition().duration(1300).ease(d3.easeCubicOut).delay((d, i) => i * 100).attr("y", 0).attr("height", height);
 
         // Draw Bars
         const layer = svg.selectAll(".layer").data(stackedData).enter().append("g").attr("class", "layer").attr("fill", d => color(d.key));
@@ -134,12 +134,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Connect checkbox toggles
+    // chart redraw
     document.querySelectorAll('.type-toggle').forEach(checkbox => {
         checkbox.addEventListener('change', updateChart);
     });
 
-    // Cost Estimator & Chart Scaling Logic
+    // cost estimator & chart scaling
     const typeSelect = document.getElementById("calc-type");
     const sizeSlider = document.getElementById("calc-slider");
     const sizeNumber = document.getElementById("calc-number");
@@ -166,21 +166,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         resultValue.textContent = `€${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         resultFormula.textContent = `${size} m² × ${ratePerSqm.toFixed(2)} €/m²`;
-
-        // Triggers the D3 chart to rescale and re-animate based on the new size
-        updateChart();
     }
 
-    // Connect slider inputs
+    // event listeners
+
     typeSelect.addEventListener("change", calculateCost);
+
     sizeSlider.addEventListener("input", (e) => {
         sizeNumber.value = e.target.value;
         calculateCost();
     });
+
+
+    sizeSlider.addEventListener("change", () => {
+        updateChart();
+    });
+
     sizeNumber.addEventListener("input", (e) => {
         let val = parseFloat(e.target.value);
         if (!isNaN(val) && val >= 20 && val <= 300) sizeSlider.value = val;
         calculateCost();
+    });
+
+    sizeNumber.addEventListener("change", () => {
+        updateChart();
     });
 
 });
