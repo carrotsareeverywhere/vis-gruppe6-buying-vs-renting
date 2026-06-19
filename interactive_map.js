@@ -243,6 +243,7 @@ function switchColorMetric(metricName) {
 function handleManualRecalculate() {
     isCalculationTriggered = true;
     calculateBreakEven();
+    inputExceptionHandler();
 }
 
 function toggleChartLineVisibility() {
@@ -325,10 +326,6 @@ function calculateBreakEven() {
     const closingCosts = purchasePrice * closingCostRate;
     const totalUpfrontRequired = downPayment + closingCosts;
 
-    const banner = document.getElementById('debt-warning-overlay');
-    const warningTitle = document.getElementById('warning-title');
-    const warningDescription = document.getElementById('warning-description');
-
     let loanAmount = purchasePrice - downPayment;
     if (loanAmount < 0) loanAmount = 0;
 
@@ -400,7 +397,7 @@ function calculateBreakEven() {
     // net-wealth is in the negative because upfront closing costs and down payments are gone. (Means normally the renter should now be clear of the house/apartment buyer)
     let buyerHomeValue = purchasePrice;
     let buyerRemainingLoan = loanAmount;
-    let buyerSavingsAccount = -totalUpfrontRequired;
+    let buyerSavingsAccount = downPayment - totalUpfrontRequired - baseMortgagePayment;
 
     const cumulativePurchasePaidData = [Math.round(0 + buyerSavingsAccount)];
 
@@ -413,62 +410,6 @@ function calculateBreakEven() {
     let currentAnnualRent = monthlyRent * 12;
     let currentAnnualGeneralExpenses = avgMonthlyExpenses * 12; // Formulating annual basis
     let breakEvenYear = null;
-
-        if (monthlyIncome-avgMonthlyExpenses < inputLoanRepayment) {
-            // Condition 1: Monthly loan repayment exceeds total household income
-            warningTitle.innerHTML = `⚠️ Repayment Exceeds Income`;
-            warningDescription.innerHTML = `
-        <p>Your entered monthly loan repayment of <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> is higher than your total net monthly income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
-        <p style="margin-top: 8px; color: #666;">You cannot commit to a mortgage payment that exceeds your total earnings. Please lower the repayment amount or increase the household income parameter.</p>
-    `;
-            banner.style.display = 'flex'; // Uses flex layout to center the popup box
-
-        } else if (monthlyIncome < monthlyRent) {
-            // Condition 2: Base rent cost exceeds total household income
-            warningTitle.innerHTML = `⚠️ Rent Exceeds Income`;
-            warningDescription.innerHTML = `
-        <p>The baseline monthly rent of <strong>${monthlyRent.toLocaleString('de-AT')} €</strong> for this district is greater than your total monthly net household income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
-        <p style="margin-top: 8px; color: #666;">This renders the renting strategy unviable. Please adjust the desired rental property size down or increase income parameters.</p>
-    `;
-            banner.style.display = 'flex';
-
-        } else if (inputLoanAmount > inputLoanRepayment * 12 * 30) {
-            const totalPaid30Years = inputLoanRepayment * 12 * 30;
-            const remainingDebt = inputLoanAmount - totalPaid30Years;
-
-            warningTitle.innerHTML = `⚠️ Insufficient Loan Repayment`;
-            warningDescription.innerHTML = `
-        <p>Your current monthly loan repayment setting is too low to fully amortize the mortgage over the timeline. Over 30 years, you will have paid back <strong>${totalPaid30Years.toLocaleString('de-AT')} €</strong>.</p>
-        <p style="margin-top: 8px;">After the 30-year simulation window closes, you would still owe the bank:</p>
-        <div style="background-color: #fdf2f2; margin-top: 10px; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #f5c6cb;">
-            <strong style="color: #ae0000; font-size: 1.4rem; font-weight: 700;">${Math.round(remainingDebt).toLocaleString('de-AT')} €</strong>
-        </div>
-    `;
-            banner.style.display = 'flex';
-
-        } else if (inputLoanAmount*1.035 + downPayment < purchasePrice && inputLoanAmount !== 0) {
-            // Condition 4: Capital allocation shortfall / Funding Gap
-            const totalAvailableFunds = inputLoanAmount + downPayment;
-            const shortfall = purchasePrice - totalAvailableFunds;
-
-            warningTitle.innerHTML = `⚠️ Funding Gap Detected`;
-            warningDescription.innerHTML = `
-        <p>The specified loan amount combined with your available equity capital does not cover the total purchase price of this property.</p>
-        <div style="background-color: #fff9db; margin-top: 10px; padding: 12px; border-radius: 6px; border: 1px solid #ffe066; font-size: 0.88rem; color: #444; display: flex; flex-direction: column; gap: 4px;">
-            <div>Total Purchase Price: <strong style="float: right; color: #333;">${Math.round(purchasePrice).toLocaleString('de-AT')} €</strong></div>
-            <div>Your Available Funds: <strong style="float: right; color: #333;">${Math.round(totalAvailableFunds).toLocaleString('de-AT')} €</strong></div>
-            <div style="border-top: 1px dashed #ffe066; margin-top: 6px; padding-top: 6px; font-weight: bold; color: #e65100;">
-                Shortfall / Gap: <strong style="float: right; font-size: 1.1rem;">${Math.round(shortfall).toLocaleString('de-AT')} €</strong>
-            </div>
-        </div>
-    `;
-            banner.style.display = 'flex';
-
-        } else {
-            // Everything is completely valid, secure the view
-            banner.style.display = 'none';
-        }
-
 
     // 30-Year Projection Loop
     for (let year = 0; year <= 30; year++) {
@@ -548,6 +489,67 @@ function calculateBreakEven() {
 
     renderLineChartCanvas(labels, renterNetWorthData, ownerNetWorthData, cumulativeRentPaidData, cumulativePurchasePaidData);
     updateBreakEvenSummary(cumulativePurchasePaidData, cumulativeRentPaidData);
+    }
+}
+
+function inputExceptionHandler(){
+
+    const banner = document.getElementById('debt-warning-overlay');
+    const warningTitle = document.getElementById('warning-title');
+    const warningDescription = document.getElementById('warning-description');
+
+    if (monthlyIncome-avgMonthlyExpenses < inputLoanRepayment) {
+        // Condition 1: Monthly loan repayment exceeds total household income
+        warningTitle.innerHTML = `⚠️ Repayment Exceeds Income`;
+        warningDescription.innerHTML = `
+        <p>Your entered monthly loan repayment of <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> is higher than your total net monthly income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px; color: #666;">You cannot commit to a mortgage payment that exceeds your total earnings. Please lower the repayment amount or increase the household income parameter.</p>
+    `;
+        banner.style.display = 'flex'; // Uses flex layout to center the popup box
+
+    } else if (monthlyIncome < monthlyRent) {
+        // Condition 2: Base rent cost exceeds total household income
+        warningTitle.innerHTML = `⚠️ Rent Exceeds Income`;
+        warningDescription.innerHTML = `
+        <p>The baseline monthly rent of <strong>${monthlyRent.toLocaleString('de-AT')} €</strong> for this district is greater than your total monthly net household income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px; color: #666;">This renders the renting strategy unviable. Please adjust the desired rental property size down or increase income parameters.</p>
+    `;
+        banner.style.display = 'flex';
+
+    } else if (inputLoanAmount > inputLoanRepayment * 12 * 30) {
+        const totalPaid30Years = inputLoanRepayment * 12 * 30;
+        const remainingDebt = inputLoanAmount - totalPaid30Years;
+
+        warningTitle.innerHTML = `⚠️ Insufficient Loan Repayment`;
+        warningDescription.innerHTML = `
+        <p>Your current monthly loan repayment setting is too low to fully amortize the mortgage over the timeline. Over 30 years, you will have paid back <strong>${totalPaid30Years.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px;">After the 30-year simulation window closes, you would still owe the bank:</p>
+        <div style="background-color: #fdf2f2; margin-top: 10px; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #f5c6cb;">
+            <strong style="color: #ae0000; font-size: 1.4rem; font-weight: 700;">${Math.round(remainingDebt).toLocaleString('de-AT')} €</strong>
+        </div>
+    `;
+        banner.style.display = 'flex';
+
+    } else if (inputLoanAmount*1.035 + downPayment < inputPriceM2*buySize && inputLoanAmount !== 0) {
+        // Condition 4: Capital allocation shortfall / Funding Gap
+        const totalAvailableFunds = inputLoanAmount + downPayment;
+        const shortfall = inputPriceM2*buySize - totalAvailableFunds;
+
+        warningTitle.innerHTML = `⚠️ Funding Gap Detected`;
+        warningDescription.innerHTML = `
+        <p>The specified loan amount combined with your available equity capital does not cover the total purchase price of this property.</p>
+        <div style="background-color: #fff9db; margin-top: 10px; padding: 12px; border-radius: 6px; border: 1px solid #ffe066; font-size: 0.88rem; color: #444; display: flex; flex-direction: column; gap: 4px;">
+            <div>Total Purchase Price: <strong style="float: right; color: #333;">${Math.round(inputPriceM2*buySize).toLocaleString('de-AT')} €</strong></div>
+            <div>Your Available Funds: <strong style="float: right; color: #333;">${Math.round(totalAvailableFunds).toLocaleString('de-AT')} €</strong></div>
+            <div style="border-top: 1px dashed #ffe066; margin-top: 6px; padding-top: 6px; font-weight: bold; color: #e65100;">
+                Shortfall / Gap: <strong style="float: right; font-size: 1.1rem;">${Math.round(shortfall).toLocaleString('de-AT')} €</strong>
+            </div>
+        </div>
+    `;
+        banner.style.display = 'flex';
+    } else {
+        // Everything is completely valid, secure the view
+        banner.style.display = 'none';
     }
 }
 
