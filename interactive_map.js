@@ -313,6 +313,10 @@ function calculateBreakEven() {
     userRentIncreaseRate = parseFloat(document.getElementById("param-rent-increase").value) || 2.0;
     avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value) || 400;
 
+    if(inputLoanAmount <= 0){
+        inputLoanAmount = 0;
+    }
+
     // Standard Defaults for Austria based on statistic austria and a few google searches (so take it with a grain of salt)
     const mortgageRate = 0.035;       // 3.5% nominal interest rate
     const mortgageYears = 30;
