@@ -123,6 +123,58 @@
     fill: #555;
 }
 
+.annotation-line {
+    stroke: #555;
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.annotation-box {
+    fill: rgba(248, 249, 250, 0.95);
+    stroke: #eef2f5;
+    stroke-width: 1px;
+    rx: 4;
+}
+
+.annotation-text {
+    font-size: 8px;
+    fill: #333;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+/* Inheritance annotation */
+.inheritance-arrow {
+    stroke: #ae0000;
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.inheritance-arrowhead {
+    fill: #ae0000;
+    opacity: 0.75;
+}
+
+.inheritance-box {
+    fill: rgba(248, 249, 250, 0.97);
+    stroke: #ae0000;
+    stroke-width: 1.5;
+}
+
+.inheritance-label-title {
+    font-size: 9px;
+    font-weight: 700;
+    fill: #ae0000;
+    font-family: inherit;
+}
+
+.inheritance-label-body {
+    font-size: 8px;
+    font-weight: 500;
+    fill: #333;
+    font-family: inherit;
+}
+
 rect {
     transition: opacity 0.2s ease;
 }
