@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const keys = ["mortgage_rent", "operating", "energy", "misc"];
     const keyLabels = {
         "mortgage_rent": "Mortgage / Base Rent",
-        "operating": "Operating/Maintenance",
+        "operating": "Operating / Maintenance",
         "energy": "Energy",
         "misc": "Miscellaneous",
     };
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Interactions (Tooltips)
         rects.on("mouseover", function(event, d) {
             d3.selectAll("rect").style("opacity", 0.3);
-            d3.select(this).style("opacity", 1).style("stroke", "#ae0000").style("stroke-width", 2);
+            d3.select(this).style("opacity", 1).style("stroke", "#ffffff").style("stroke-width", 2);
 
             const componentName = d3.select(this.parentNode).datum().key;
             const componentValue = d[1] - d[0];
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Legend
-        const legend = svg.append("g").attr("transform", `translate(${width + 20}, 20)`);
+        const legend = svg.append("g").attr("transform", `translate(${width + 15}, 20)`);
         const legendKeys = [...keys].reverse();
 
         legendKeys.forEach((key, i) => {
