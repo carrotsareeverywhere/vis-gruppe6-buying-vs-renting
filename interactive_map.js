@@ -24,6 +24,8 @@ let minMiete = Infinity, maxMiete = 0;
 let kaufpreisThresholds = [];
 let mieteThresholds = [];
 
+let buySize, rentSize, monthlyIncome, downPayment, inputPriceM2, inputLoanAmount, inputLoanRepayment, monthlyRent, rentDeposit, userRentIncreaseRate, avgMonthlyExpenses;
+
 async function loadGeoJsonFiles() {
     try {
         const statesResponse = await fetch('laender_95_geo_mit_Preisen.json');
@@ -241,6 +243,7 @@ function switchColorMetric(metricName) {
 function handleManualRecalculate() {
     isCalculationTriggered = true;
     calculateBreakEven();
+    inputExceptionHandler();
 }
 
 function toggleChartLineVisibility() {
@@ -298,18 +301,17 @@ function calculateBreakEven() {
     if (!canvasEl) return;
 
     // Extract sizing inputs explicitly
-    const buySize = parseFloat(document.getElementById("param-buy-size").value) || 80;
-    const rentSize = parseFloat(document.getElementById("param-rent-size").value) || 80;
-    const monthlyIncome = parseFloat(document.getElementById("param-income").value) || 4500;
-    const downPayment = parseFloat(document.getElementById("param-capital").value) || 0;
-    const inputPriceM2 = parseFloat(document.getElementById("param-price-m2").value) || 0;
-    const inputLoanAmount = parseFloat(document.getElementById("param-loan-amount").value) || 0;
-    const inputLoanRepayment = parseFloat(document.getElementById("param-loan-repayment").value) || 0;
-    const monthlyRent = parseFloat(document.getElementById("param-rent").value) || 0;
-    const rentDeposit = parseFloat(document.getElementById("param-deposit").value) || 0;
-    const userRentIncreaseRate = parseFloat(document.getElementById("param-rent-increase").value) || 2.0;
-
-    const avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value) || 400;
+    buySize = parseFloat(document.getElementById("param-buy-size").value) || 80;
+    rentSize = parseFloat(document.getElementById("param-rent-size").value) || 80;
+    monthlyIncome = parseFloat(document.getElementById("param-income").value) || 4500;
+    downPayment = parseFloat(document.getElementById("param-capital").value) || 0;
+    inputPriceM2 = parseFloat(document.getElementById("param-price-m2").value) || 0;
+    inputLoanAmount = parseFloat(document.getElementById("param-loan-amount").value) || 0;
+    inputLoanRepayment = parseFloat(document.getElementById("param-loan-repayment").value) || 0;
+    monthlyRent = parseFloat(document.getElementById("param-rent").value) || 0;
+    rentDeposit = parseFloat(document.getElementById("param-deposit").value) || 0;
+    userRentIncreaseRate = parseFloat(document.getElementById("param-rent-increase").value) || 2.0;
+    avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value) || 400;
 
     // Standard Defaults for Austria based on statistic austria and a few google searches (so take it with a grain of salt)
     const mortgageRate = 0.035;       // 3.5% nominal interest rate
@@ -343,11 +345,9 @@ function calculateBreakEven() {
     // If the user input is checked the value stop auto updating, without the checkbox it would constantly overwrite the user intput
     window.addEventListener("click", function () {
         const isCustomLoanEnabled = document.getElementById('toggle-loan-check').checked;
-
         if (!isCustomLoanEnabled) {
             document.getElementById("param-loan-amount").value = Math.round(baseMortgagePayment);
         }
-
         if (activeSelectedProperties) {
             document.getElementById("param-rent").value = Math.round(activeSelectedProperties.miete * rentSize);
         }
@@ -373,8 +373,8 @@ function calculateBreakEven() {
         let avgMiete = 0;
         let avgKaufpreis = 0;
     } else {
-        let avgMiete = extractNumericValue(activeSelectedProperties.miete) * 100;
-        let avgKaufpreis = extractNumericValue(activeSelectedProperties.Kaufpreis) * 100;
+        let avgMiete = extractNumericValue(activeSelectedProperties.miete) * 80;
+        let avgKaufpreis = extractNumericValue(activeSelectedProperties.Kaufpreis) * 80;
 
 
     //Average Prices using Local Data from .json files
@@ -397,7 +397,7 @@ function calculateBreakEven() {
     // net-wealth is in the negative because upfront closing costs and down payments are gone. (Means normally the renter should now be clear of the house/apartment buyer)
     let buyerHomeValue = purchasePrice;
     let buyerRemainingLoan = loanAmount;
-    let buyerSavingsAccount = -totalUpfrontRequired;
+    let buyerSavingsAccount = downPayment - totalUpfrontRequired - baseMortgagePayment;
 
     const cumulativePurchasePaidData = [Math.round(0 + buyerSavingsAccount)];
 
@@ -429,13 +429,11 @@ function calculateBreakEven() {
         currentAnnualIncome *= (1 + incomeGrowthRate);
         currentAnnualGeneralExpenses *= (1 + 0.037); // Applying standard inflation rate to all none housing related extra costs.
 
-        // BUYER CALCULATIONS
         buyerHomeValue *= (1 + appreciationRate);
 
         let dynamicAnnualPayment = annualMortgagePayment;
         let principalRepayment = 0;
 
-        // If there is still a loan balance to pay off
         if (buyerRemainingLoan > 0) {
             let interestPayment = buyerRemainingLoan * mortgageRate;
 
@@ -454,7 +452,6 @@ function calculateBreakEven() {
                 buyerRemainingLoan -= principalRepayment;
             }
         } else {
-            // Loan is completely paid off, user pays 0 mortgage from this year onward
             dynamicAnnualPayment = 0;
         }
 
@@ -491,9 +488,78 @@ function calculateBreakEven() {
     }
 
     renderLineChartCanvas(labels, renterNetWorthData, ownerNetWorthData, cumulativeRentPaidData, cumulativePurchasePaidData);
-    updateBreakEvenSummary(breakEvenYear);
+    updateBreakEvenSummary(cumulativePurchasePaidData, cumulativeRentPaidData);
     }
 }
+
+function inputExceptionHandler(){
+
+    const banner = document.getElementById('debt-warning-overlay');
+    const warningTitle = document.getElementById('warning-title');
+    const warningDescription = document.getElementById('warning-description');
+
+    if (monthlyIncome-avgMonthlyExpenses < inputLoanRepayment) {
+        // Condition 1: Monthly loan repayment exceeds total household income
+        warningTitle.innerHTML = `⚠️ Repayment Exceeds Income`;
+        warningDescription.innerHTML = `
+        <p>Your entered monthly loan repayment of <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> is higher than your total net monthly income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px; color: #666;">You cannot commit to a mortgage payment that exceeds your total earnings. Please lower the repayment amount or increase the household income parameter.</p>
+    `;
+        banner.style.display = 'flex'; // Uses flex layout to center the popup box
+
+    } else if (monthlyIncome < monthlyRent) {
+        // Condition 2: Base rent cost exceeds total household income
+        warningTitle.innerHTML = `⚠️ Rent Exceeds Income`;
+        warningDescription.innerHTML = `
+        <p>The baseline monthly rent of <strong>${monthlyRent.toLocaleString('de-AT')} €</strong> for this district is greater than your total monthly net household income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px; color: #666;">This renders the renting strategy unviable. Please adjust the desired rental property size down or increase income parameters.</p>
+    `;
+        banner.style.display = 'flex';
+
+    } else if (inputLoanAmount > inputLoanRepayment * 12 * 30) {
+        const totalPaid30Years = inputLoanRepayment * 12 * 30;
+        const remainingDebt = inputLoanAmount - totalPaid30Years;
+
+        warningTitle.innerHTML = `⚠️ Insufficient Loan Repayment`;
+        warningDescription.innerHTML = `
+        <p>Your current monthly loan repayment setting is too low to fully amortize the mortgage over the timeline. Over 30 years, you will have paid back <strong>${totalPaid30Years.toLocaleString('de-AT')} €</strong>.</p>
+        <p style="margin-top: 8px;">After the 30-year simulation window closes, you would still owe the bank:</p>
+        <div style="background-color: #fdf2f2; margin-top: 10px; padding: 12px; border-radius: 6px; text-align: center; border: 1px solid #f5c6cb;">
+            <strong style="color: #ae0000; font-size: 1.4rem; font-weight: 700;">${Math.round(remainingDebt).toLocaleString('de-AT')} €</strong>
+        </div>
+    `;
+        banner.style.display = 'flex';
+
+    } else if (inputLoanAmount*1.035 + downPayment < inputPriceM2*buySize && inputLoanAmount !== 0) {
+        // Condition 4: Capital allocation shortfall / Funding Gap
+        const totalAvailableFunds = inputLoanAmount + downPayment;
+        const shortfall = inputPriceM2*buySize - totalAvailableFunds;
+
+        warningTitle.innerHTML = `⚠️ Funding Gap Detected`;
+        warningDescription.innerHTML = `
+        <p>The specified loan amount combined with your available equity capital does not cover the total purchase price of this property.</p>
+        <div style="background-color: #fff9db; margin-top: 10px; padding: 12px; border-radius: 6px; border: 1px solid #ffe066; font-size: 0.88rem; color: #444; display: flex; flex-direction: column; gap: 4px;">
+            <div>Total Purchase Price: <strong style="float: right; color: #333;">${Math.round(inputPriceM2*buySize).toLocaleString('de-AT')} €</strong></div>
+            <div>Your Available Funds: <strong style="float: right; color: #333;">${Math.round(totalAvailableFunds).toLocaleString('de-AT')} €</strong></div>
+            <div style="border-top: 1px dashed #ffe066; margin-top: 6px; padding-top: 6px; font-weight: bold; color: #e65100;">
+                Shortfall / Gap: <strong style="float: right; font-size: 1.1rem;">${Math.round(shortfall).toLocaleString('de-AT')} €</strong>
+            </div>
+        </div>
+    `;
+        banner.style.display = 'flex';
+    } else {
+        // Everything is completely valid, secure the view
+        banner.style.display = 'none';
+    }
+}
+
+function hideDebtWarningPopup() {
+    const banner = document.getElementById('debt-warning-overlay');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+}
+
 
 function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyData) {
     const ctx = document.getElementById('breakEvenChart').getContext('2d');
@@ -512,10 +578,10 @@ function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyDat
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Renter Portfolio Value', data: rentData, borderColor: '#2e7d32', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
-                    { label: 'Owner Equity Value', data: buyData, borderColor: '#0066cc', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
-                    { label: 'User input Rent', data: cumRentData, borderColor: '#e6a23c', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
-                    { label: 'User input Purchase', data: cumBuyData, borderColor: '#ae0000', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
+                    { label: 'Renter Value', data: rentData, borderColor: '#2e7d32', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
+                    { label: 'Owner Value', data: buyData, borderColor: '#0066cc', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
+                    { label: 'User input Rent Value', data: cumRentData, borderColor: '#e6a23c', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
+                    { label: 'User input Purchase Value', data: cumBuyData, borderColor: '#ae0000', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
                 ]
             },
             options: {
@@ -546,63 +612,126 @@ function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyDat
     }
 }
 
-function updateBreakEvenSummary(breakEvenYear) {
-    const textContainer = document.getElementById('break-even-summary-text');
+function updateBreakEvenSummary(purchaseData, rentData) {
+    const summaryBox = document.getElementById('break-even-summary-text');
     const readMoreBtn = document.getElementById('btn-read-more');
     const modalTextBox = document.getElementById('modal-detailed-text');
 
-    if (!textContainer) return;
-    const regionHeadline = activeSelectedProperties ? activeSelectedProperties.name : "Active Dashboard Profile";
+    if (!summaryBox) return;
 
-    //TODO: Replace AI generated placeholder Text with a more detailed and logical text that uses more of the user inputs to explain the graph
+    // 1. Calculate outcomes and differences for Year 30 (index 29)
+    const finalRenterNetWorth = rentData[29];
+    const finalOwnerNetWorth = purchaseData[29];
+    const netWorthDifference = Math.abs(finalRenterNetWorth - finalOwnerNetWorth);
+    const winner = finalRenterNetWorth > finalOwnerNetWorth ? "Renter" : "Property Owner";
 
-    // Variables to store the split text tracks
-    let shortText = "";
-    let detailedText = "";
+    let breakEvenYear = null;
+    for (let year = 0; year < 30; year++) {
+        if (purchaseData[year] > rentData[year]) {
+            breakEvenYear = year + 1;
+            break;
+        }
+    }
 
+    let summaryBriefText = "";
     if (breakEvenYear) {
-        // 1. Keep your original short dashboard text
-        shortText = `<strong>${regionHeadline}:</strong> Purchase asset outperformance optimizes at <strong>Year ${breakEvenYear}</strong>. Beyond this horizon, property equity growth moves faster than renter capital portfolio compounding.`;
-
-        // 2. Build the detailed pop-up extension
-        detailedText = `
-            <p><strong>Long-Term Strategy Analysis for ${regionHeadline}:</strong></p>
-            <p style="margin-top: 10px;">In the initial years, the renter holds a financial edge because renting avoids heavy upfront transaction friction, loan processing overhead, and interest weight. This allows the renter's excess capital to compound uninterrupted in portfolio assets.</p>
-            <p style="margin-top: 10px;">However, by <strong>Year ${breakEvenYear}</strong>, a structural shift occurs. The landlord's rent inflation vector (compounding over time) increases the renter's monthly liabilities. Meanwhile, the buyer's fixed-rate amortization schedule steadily drops the outstanding principal balance, accelerating equity ownership gains.</p>
-            <p style="margin-top: 10px;">Passing this cross-over timeline makes property purchasing the structurally superior wealth vehicle for this region under current market parameters.</p>
+        summaryBriefText = `
+            <strong>Here is the quick takeaway:</strong> Buying this property beats renting in the long run, and you hit the financial turning point in 
+            <span style="color: #ae0000; font-weight: bold;">Year ${breakEvenYear}</span>. By Year 30, the 
+            <strong>${winner}</strong> strategy accumulates about <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong> more in total net worth!
         `;
-
-        // Stylize the dashboard summary container box (Green theme)
-        textContainer.style.borderLeftColor = "#67c23a";
-        textContainer.style.background = "#f0f9eb";
     } else {
-        // 1. Keep your original short dashboard text
-        shortText = `<strong>${regionHeadline}:</strong> Renter compounding portfolio allocation remains dominant over the 30-year study timeline.`;
-
-        // 2. Build the detailed pop-up extension
-        detailedText = `
-            <p><strong>Long-Term Strategy Analysis for ${regionHeadline}:</strong></p>
-            <p style="margin-top: 10px;">Across this specific asset layer timeline, purchasing a home does not achieve a financial break-even path within our 30-year projection matrix.</p>
-            <p style="margin-top: 10px;">High regional purchase costs per square meter relative to local rental alternatives create a massive liquidity gap. The capital saved monthly by renting—when systematically allocated back into growth portfolios—outpaces real estate equity accumulation hands down.</p>
-            <p style="margin-top: 10px;">Unless regional market conditions cycle lower, or rental rates jump dramatically, rental structures maximize wealth accumulation efficiency here over a 30-year span.</p>
+        summaryBriefText = `
+            <strong>Here is the quick takeaway:</strong> Based on these settings, the <strong>${winner}</strong> stays ahead for the entire 30-year timeline. 
+            By the end, renting beats buying by a margin of <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong> in total wealth.
         `;
-
-        // Stylize the dashboard summary container box (Yellow theme)
-        textContainer.style.borderLeftColor = "#e6a23c";
-        textContainer.style.background = "#fdf6ec";
     }
 
-    // Write short text version to dashboard panel
-    textContainer.innerHTML = shortText;
+    summaryBox.innerHTML = summaryBriefText;
 
-    // Send extended text copy down to the hidden modal container
+    const totalPurchaseCost = buySize * inputPriceM2;
+
+    let extendedDeepDiveText = `
+        <p>Here is a detailed explenation on what our Graph represents, what a break even point is and how it is calculated.</p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Disclaimer:</h4>
+        <p>
+        We use net worth over time as our main metric because it provides the most accurate representation of your overall wealth. It includes both your accumulated savings and the value of your property.
+        If we only looked at the amount of cash left after 30 years, and assumed you made no purchases other than your average monthly living expenses (which is very unlikely), a renter would almost always have more cash available than a buyer, even at the break-even point. 
+        This is because a buyer has invested a significant portion of their savings and income into purchasing a property.
+        Therefore, the most accurate way to represent our data is by considering all relevant financial assets instead of only the remaining cash.
+        </p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Graph Description:</h4>
+        <p>
+            <strong>Green dotted line:</strong> Represents the average net-worth development of a renter living in the selected state or district. The calculation is based on the average rent for an 80 m² property.
+            <br><strong>Blue dotted line:</strong> Represents the average net-worth development of a homeowner who already owns an 80 m² property in the selected state or district. It is assumed that any mortgage has already been fully paid off.
+            <br><strong>Yellow line:</strong> Represents your projected net-worth development while renting. It combines your personal financial information with the average rental prices and living costs in the selected state or district.
+            <br><strong>Red line:</strong> Represents your projected net-worth development while buying. It combines your personal financial information with the average property prices and ownership costs in the selected state or district.
+        </p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Break-Even Point</h4>
+        <p>
+        The break-even point is where the red and yellow lines intersect. It marks the point at which buying and renting result in the same net worth.
+        After this point, owning a property generally becomes the better financial investment. In most scenarios, the break-even point indicates when buying starts to outperform renting in terms of total net worth.
+        </p>
+        
+        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">How Does the Break-Even Calculator Work?</h4>
+        <p>
+        <h4>Renting</h4>
+        You start with your available equity, minus any rental deposit, which remains in your bank account. Every month, the calculator adds your income and subtracts your living expenses and rent. Rent is assumed to increase by approximately 2.3% per year, based on the average rent increase in Austria.
+        <br>If renting remains significantly cheaper than paying a mortgage, you are able to save more money each month. Over time, these savings increase your overall net worth and may outperform buying, depending on your situation.
+        <h4>Buying</h4>
+        When purchasing a property, you first pay the typical Austrian closing costs, including expenses such as Grunderwerbsteuer, Grundbucheintragung, Maklergebühren, and Notarkosten. These costs are based on Austrian averages and are added to the mortgage amount.
+        <br>Because of these upfront expenses, buyers often start with a negative net worth. Each month, you make a fixed mortgage payment. The calculator tracks both the increase in your property's market value and the reduction of your remaining loan balance. With every mortgage payment, you gradually transfer ownership of the property from the bank to yourself.
+        </p>
+        
+        <h3 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Purchasing a propety based on your information:</h3>
+        <p>
+            The selected district has a property price of <strong>${Math.round(inputPriceM2).toLocaleString('de-AT')} € per m²</strong>. 
+            Multiplying that by your desired size of ${buySize}m² brings the raw sticker price of the home to <strong>${Math.round(totalPurchaseCost).toLocaleString('de-AT')} €</strong>.
+        </p>
+        <p style="margin-top: 6px;">
+            Since you are putting down your <strong>${downPayment.toLocaleString('de-AT')} €</strong> of hard equity capital right away, you have to take a loan for the rest. 
+            That leaves you with a bank loan principal of <strong>${Math.round(inputLoanAmount).toLocaleString('de-AT')} €</strong>. 
+            Every single month, you lock in a fixed <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> mortgage repayment. 
+            Out of your monthly houshold income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>, after paying the bank and your normal living expenses of <strong>${avgMonthlyExpenses.toLocaleString('de-AT')} €</strong>, 
+            whatever income is left over gets saved. Furthermore, everytime you pay back a portion of the loan, the repayment value is added to the value of your purchased property.
+            As an example, if you pay of 50% of your loan, about 50% of your property value (+ appreciation) is added to your net-worth.
+        </p>
+
+        <h3 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Renting a propety based on your information:</h3>
+        <p>
+            Instead of buying, you start by renting an <strong>${rentSize.toLocaleString('de-AT')} m²</strong> space. Your initial monthly rent is set at <strong>${monthlyRent.toLocaleString('de-AT')} €</strong>, 
+            and you hand over an upfront safety deposit of <strong>${rentDeposit.toLocaleString('de-AT')} €</strong>.
+        </p>
+        <p style="margin-top: 6px;">
+            Crucially, the renter gets to keep their <strong>${downPayment.toLocaleString('de-AT')} €</strong> of equity in their pocket on Day 1 and also dosnt need to pay the additional upfront costs that come with buying a property.
+            With the additional cash, you would keep a sizable lead, at the start, in the net-worth race, depending on the desired property location and size the buyer sometimes cant catch up.           
+        </p>
+
+        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Why do the lines cross? (The Break Even Point)</h4>
+        <p>
+            Why does the chart change?:
+        </p>
+        <ul style="margin-left: 20px; margin-top: 6px; margin-bottom: 10px; line-height: 1.5; color: #4a5568;">
+            <li><strong>Rent Inflation:</strong> Your rent isn't fixed. With an expected annual increase of <strong>${2.0}%</strong>, that initial ${monthlyRent} € payment quietly creeps up year after year, slowly eating away at the renter's monthly savings pool.</li>
+            <li><strong>The 30-Year Loan Horizon:</strong> While the renter's payments keep climbing forever, the buyer's mortgage eventually gets fully paid off. Suddenly, the buyer owns a massive, valuable asset completely debt-free and has zero housing payments!</li>
+        </ul>
+        
+        <p style="margin-top: 12px; background: #fdf2f2; padding: 12px; border-radius: 4px; font-weight: 500; border-left: 3px solid #ae0000;">
+            <strong>Final Verdict:</strong> ${breakEvenYear
+        ? `In the beginning, the renter is wealthier due to the saved "cash" and lower additional initial costs. But around <strong>Year ${breakEvenYear}</strong>, the rising cost of rent and the building value of the property owner causes the lines to cross. After 30 years, the property owner wins by a sizeable margin of <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`
+        : `Due to the disparity in the property purchasing price and the monthly rent, the renter's net-worth grows faster, then that of the property owner. Over the 30-year horizon, renting remains the financially superior path by <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`}
+        <br> This ofcourse only takes into consideration the average monthly operating costs and does not 100% accuratly represent a house or appartments real monthly costs.
+        </p>
+    `;
+
     if (modalTextBox) {
-        modalTextBox.innerHTML = detailedText;
-    }
-
-    // Unhide the "Read More" button beneath the short message
-    if (readMoreBtn) {
-        readMoreBtn.style.display = "inline-block";
+        modalTextBox.innerHTML = extendedDeepDiveText;
+        if (readMoreBtn) readMoreBtn.style.display = "inline-block";
+    } else if (readMoreBtn) {
+        readMoreBtn.style.display = "none";
     }
 }
 

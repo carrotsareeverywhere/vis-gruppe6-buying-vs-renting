@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Map of Austria & Break Even Calculator</title>
+    <title>Interactive Map of Austria & Break-Even Point Calculator</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
@@ -13,7 +13,7 @@
 <body>
 
 <nav id="site-navigation">
-    <div class="nav-brand">Austria Real Estate Hub</div>
+    <div class="nav-brand">Interactive Map of Austria & Break-Even Point Calculator</div>
     <div class="nav-links">
         <a href="#page-dashboard" class="nav-item active">Map & Break-Even Calculator</a>
         <a href="#page-insights" class="nav-item">Page 2</a>
@@ -109,68 +109,84 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="calculator-inputs-container">
-                        <div class="dashboard-columns">
-                            <div class="dashboard-col">
-                                <h4>(1) Personal Info</h4>
-                                <div class="input-field-block">
-                                    <label for="param-income">Household Monthly Net Income (€)</label>
-                                    <input type="number" id="param-income" value="4500">
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-capital">Household Equity Capital (€)</label>
-                                    <input type="number" id="param-capital" value="50000">
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-monthly-expenses">Avg Monthly living expenses <p>(excluding Housing costs) (€)</label>
-                                    <input type="number" id="param-monthly-expenses" value="400">
-                                </div>
+                        <div class="inputs-table-grid">
+                            <div class="table-header">(1) Personal Info</div>
+                            <div class="table-header">(2) Purchase Info</div>
+                            <div class="table-header">(3) Rent Info</div>
+
+                            <div class="table-cell">
+                                <label for="param-income">Household Monthly Net Income (€)</label>
+                                <input type="number" id="param-income" value="4500">
                             </div>
-                            <div class="dashboard-col">
-                                <h4>(2) Purchase Info</h4>
-                                <div class="input-field-block">
-                                    <label for="param-buy-size">Desired Property Size (m²)</label>
-                                    <input type="number" id="param-buy-size" value="80">
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-price-m2">Price (per m²) (€)</label>
-                                    <input type="number" id="param-price-m2" placeholder="Auto-loads from map" disabled>
-                                </div>
-                                <div class="input-field-block">
-                                    <div class="label-container" style="display: flex; align-items: center; gap: 8px;">
-                                        <label for="param-loan-amount">Loan Principal Amount (€) <br> enable user input: <input type="checkbox" id="toggle-loan-check"> </label>
-                                    </div>
-                                    <input type="number" id="param-loan-amount" placeholder="Auto-calculated if 0" value="0">
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-loan-repayment">Monthly Loan Repayment (€)</label>
-                                    <input type="number" id="param-loan-repayment" value="1100">
-                                </div>
+                            <div class="table-cell">
+                                <label for="param-buy-size">Desired Property Size (m²)</label>
+                                <input type="number" id="param-buy-size" value="80">
                             </div>
-                            <div class="dashboard-col">
-                                <h4>(3) Rent Info</h4>
-                                <div class="input-field-block">
-                                    <label for="param-rent-size">Desired Property Size (m²)</label>
-                                    <input type="number" id="param-rent-size" value="80">
+                            <div class="table-cell">
+                                <label for="param-rent-size">Desired Property Size (m²)</label>
+                                <input type="number" id="param-rent-size" value="80">
+                            </div>
+
+                            <div class="table-cell">
+                                <label for="param-capital">Household Equity Capital (€)</label>
+                                <input type="number" id="param-capital" value="50000">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-price-m2">Price (per m²) (€)</label>
+                                <input type="number" id="param-price-m2" placeholder="Auto-loads from map" disabled>
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-rent">Monthly Rent (Total €)</label>
+                                <input type="number" id="param-rent" value="1200" disabled>
+                            </div>
+
+                            <div class="table-cell">
+                                <label for="param-monthly-expenses">Avg Monthly living expenses <small style="display:block; font-weight:normal; color:#666;">(excluding Housing costs) (€)</small></label>
+                                <input type="number" id="param-monthly-expenses" value="400">
+                            </div>
+                            <div class="table-cell">
+                                <div class="label-container" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <label for="param-loan-amount">Loan Principal Amount (€)</label>
+                                    <span style="font-size: 0.75rem; color: #555; display: flex; align-items: center; gap: 4px;">User Input: <input type="checkbox" id="toggle-loan-check"></span>
                                 </div>
-                                <div class="input-field-block">
-                                    <label for="param-rent">Monthly Rent (Total €)</label>
-                                    <input type="number" id="param-rent" value="1200" disabled>
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-deposit">Upfront Deposit (€)</label>
-                                    <input type="number" id="param-deposit" value="3600">
-                                </div>
-                                <div class="input-field-block">
-                                    <label for="param-rent-increase">Expected Rent Increase (%/yr)</label>
-                                    <input type="number" id="param-rent-increase" value="2.0" step="0.1">
-                                </div>
+                                <input type="number" id="param-loan-amount" placeholder="Auto-calculated if 0" value="0">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-deposit">Upfront Deposit (€)</label>
+                                <input type="number" id="param-deposit" value="3600">
+                            </div>
+
+                            <div class="table-cell empty-cell"></div>
+                            <div class="table-cell">
+                                <label for="param-loan-repayment">Monthly Loan Repayment (€)</label>
+                                <input type="number" id="param-loan-repayment" value="1100">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-rent-increase">Expected Rent Increase (%/yr)</label>
+                                <input type="number" id="param-rent-increase" value="2.0" step="0.1">
                             </div>
                         </div>
-
                         <div class="parameter-actions-wrapper">
-                            <button type="button" id="btn-execute-calculation" onclick="handleManualRecalculate()">Recalculate Horizon</button>
+                            <button type="button" id="btn-execute-calculation" onclick="handleManualRecalculate()">Recalculate Break Even Point</button>
+                        </div>
+                        <div id="debt-warning-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.4); z-index: 10000; align-items: center; justify-content: center;">
+
+                            <div id="debt-warning-popup" style="background-color: #ffffff; border-top: 5px solid #ae0000; width: clamp(300px, 35vw, 520px); padding: clamp(15px, 1.5vw, 25px); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; animation: popUpFadeIn 0.3s ease-out;">
+
+                                <button type="button" onclick="hideDebtWarningPopup()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer; font-weight: bold; line-height: 1;">&times;</button>
+
+                                <h4 id="warning-title" style="color: #ae0000; margin: 0 0 12px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                    ⚠️ Warning
+                                </h4>
+
+                                <div id="warning-description" style="font-size: 0.9rem; color: #333; line-height: 1.5;">
+                                </div>
+
+                                <button type="button" onclick="hideDebtWarningPopup()" style="width: 100%; margin-top: 15px; background-color: #ae0000; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    Adjust Parameters
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,7 +197,6 @@
                     <div id="info-content">
                         <p class="placeholder-text">Click directly on any region within Austria to view details.</p>
                     </div>
-
                     <div id="chart-section-wrapper">
                         <h3>Break-Even Infograph (30-Year Wealth / Net-Worth Projection)</h3>
                         <div id="chart-line-toggles">
@@ -202,7 +217,7 @@
                             <canvas id="breakEvenChart"></canvas>
                         </div>
                         <div id="break-even-summary-text"></div>
-                        <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #ae0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">Read More</button>
+                        <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #ae0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">What does this mean in Detail? (Read More)</button>
                     </div>
                 </div>
             </div>
@@ -357,7 +372,7 @@
 
         // Checks if the cursor is hovering over the map, sidebar, or info panel
         // (e.g. all the content that could possibly have a scrollable interaction)
-        const interactiveParent = e.target.closest('#intro-sidebar, #info-panel, #map, .leaflet-container');
+        const interactiveParent = e.target.closest('#intro-sidebar, #info-panel, #map, .leaflet-container, #calculator-inputs-container, #detail-modal-overlay');
 
         // If the user is interacting with any of these containers,
         // we completely block the page transition, allowing only native container behaviors.
