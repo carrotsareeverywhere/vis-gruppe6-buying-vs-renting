@@ -23,8 +23,70 @@ let minKaufpreis = Infinity, maxKaufpreis = 0;
 let minMiete = Infinity, maxMiete = 0;
 let kaufpreisThresholds = [];
 let mieteThresholds = [];
+let chartIsVisible = true;
 
 let buySize, rentSize, monthlyIncome, downPayment, inputPriceM2, inputLoanAmount, inputLoanRepayment, monthlyRent, rentDeposit, userRentIncreaseRate, avgMonthlyExpenses;
+
+let distributionCache = {
+    renterHistory: [],
+    buyerHistory: []
+};
+let renterDonutInstance = null;
+let buyerDonutInstance = null;
+let netWorthDifferenceInstance = null;
+let breakEvenYear = null;
+let netWorthDifference = 0;
+
+let colourBlindMode = false;
+let colorPalette = [
+    "#0B3D0B",
+    "#1E5A1E",
+    "#3F7F1F",
+    "#7DAA22",
+    "#C7D83A",
+    "#FFD700",
+    "#F4B000",
+    "#E68400",
+    "#D4551A",
+    "#B22222",
+    "#7A0000"
+];
+
+function toggleColourBlindMode() {
+    if (!colourBlindMode) {
+        colorPalette = [
+            "#08306B",
+            "#08519C",
+            "#2171B5",
+            "#4292C6",
+            "#6BAED6",
+            "#9ECAE1",
+            "#FDB863",
+            "#F67E4B",
+            "#E6550D",
+            "#C43C00",
+            "#7F2704"
+        ];
+        colourBlindMode = true;
+    } else {
+        colorPalette = [
+            "#0B3D0B",
+            "#1E5A1E",
+            "#3F7F1F",
+            "#7DAA22",
+            "#C7D83A",
+            "#FFD700",
+            "#F4B000",
+            "#E68400",
+            "#D4551A",
+            "#B22222",
+            "#7A0000"
+        ];
+        colourBlindMode = false;
+    }
+    loadMapData(currentLayerType);
+    updateYearlyDistributionCharts();
+}
 
 async function loadGeoJsonFiles() {
     try {
@@ -86,7 +148,6 @@ function calculateQuantileThresholds(geoJSONData) {
     }
 }
 
-// Application Orchestration Handles
 let map;
 let geojsonLayer;
 let currentLayerType = 'states';
@@ -105,21 +166,6 @@ function extractNumericValue(val) {
 
 function getColorForValue(value, metric) {
     if (!value || value === 0) return '#b0b0b0'; // Grey if no data is available
-
-    // Array of 11 distinct colors transitioning from Green -> Yellow -> Red
-    const colorPalette = [
-        "#0B3D0B",
-        "#1E5A1E",
-        "#3F7F1F",
-        "#7DAA22",
-        "#C7D83A",
-        "#FFD700",
-        "#F4B000",
-        "#E68400",
-        "#D4551A",
-        "#B22222",
-        "#7A0000"
-    ];
 
     const thresholds = (metric === 'Kaufpreis') ? kaufpreisThresholds : mieteThresholds;
 
@@ -156,6 +202,7 @@ function onEachFeature(feature, layer) {
         mouseout: (e) => { geojsonLayer.resetStyle(e.target); },
         click: (e) => {
             const props = feature.properties;
+            chartIsVisible = true;
             activeSelectedProperties = props;
             const contentDiv = document.getElementById('info-content');
             if (!contentDiv) return;
@@ -233,8 +280,17 @@ function switchLayer(type) {
 
 function switchColorMetric(metricName) {
     currentColorMetric = metricName;
-    document.getElementById('btn-color-kaufpreis').classList.toggle('active', metricName === 'Kaufpreis');
-    document.getElementById('btn-color-miete').classList.toggle('active', metricName === 'miete');
+
+    const btnKaufpreis = document.getElementById('btn-color-kaufpreis');
+    const btnMiete = document.getElementById('btn-color-miete');
+
+    // Add safe null guards to prevent the application from crashing if buttons are missing
+    if (btnKaufpreis) {
+        btnKaufpreis.classList.toggle('active', metricName === 'Kaufpreis');
+    }
+    if (btnMiete) {
+        btnMiete.classList.toggle('active', metricName === 'miete');
+    }
 
     updateLegendLabels(currentColorMetric);
     loadMapData(currentLayerType);
@@ -244,6 +300,7 @@ function handleManualRecalculate() {
     isCalculationTriggered = true;
     calculateBreakEven();
     inputExceptionHandler();
+    updateUserStory();
 }
 
 function toggleChartLineVisibility() {
@@ -256,8 +313,8 @@ function toggleChartLineVisibility() {
 
     breakEvenChartInstance.setDatasetVisibility(0, showRenter);
     breakEvenChartInstance.setDatasetVisibility(1, showOwner);
-    breakEvenChartInstance.setDatasetVisibility(2, isCalculationTriggered && showCumRent);
-    breakEvenChartInstance.setDatasetVisibility(3, isCalculationTriggered && showCumBuy);
+    breakEvenChartInstance.setDatasetVisibility(2, showCumRent);
+    breakEvenChartInstance.setDatasetVisibility(3, showCumBuy);
 
     breakEvenChartInstance.update();
 }
@@ -297,6 +354,14 @@ function updateLegendLabels(metric) {
 }
 
 function calculateBreakEven() {
+
+    if (chartIsVisible) {
+        const wrapper = document.getElementById("chart-section-wrapper");
+        if (wrapper) {
+            wrapper.classList.add("visible");
+        }
+    }
+
     const canvasEl = document.getElementById('breakEvenChart');
     if (!canvasEl) return;
 
@@ -313,10 +378,6 @@ function calculateBreakEven() {
     userRentIncreaseRate = parseFloat(document.getElementById("param-rent-increase").value) || 2.0;
     avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value) || 400;
 
-    if(inputLoanAmount <= 0){
-        inputLoanAmount = 0;
-    }
-
     // Standard Defaults for Austria based on statistic austria and a few google searches (so take it with a grain of salt)
     const mortgageRate = 0.035;       // 3.5% nominal interest rate
     const mortgageYears = 30;
@@ -332,6 +393,10 @@ function calculateBreakEven() {
 
     let loanAmount = purchasePrice - downPayment;
     if (loanAmount < 0) loanAmount = 0;
+
+    if(inputLoanAmount < 0){
+        inputLoanAmount = 0;
+    }
 
     let annualMortgagePayment = inputLoanRepayment * 12;
 
@@ -351,6 +416,7 @@ function calculateBreakEven() {
         const isCustomLoanEnabled = document.getElementById('toggle-loan-check').checked;
         if (!isCustomLoanEnabled) {
             document.getElementById("param-loan-amount").value = Math.round(baseMortgagePayment);
+        }else {
         }
         if (activeSelectedProperties) {
             document.getElementById("param-rent").value = Math.round(activeSelectedProperties.miete * rentSize);
@@ -365,28 +431,31 @@ function calculateBreakEven() {
     // My logic is that if the user has paid off 0% of the bank-loan the bank owns 100% of the property value
     // If the user has paid off 50% of the mortgage he/she then owns 50% of the property value and can add that to his/her net-worth
 
-    let breakEvenYear = null;
     let totalRentOutflow = closingCosts - rentDeposit;
     let totalPurchaseOutflow = downPayment + closingCosts;
     let currentRent = monthlyRent*12;
-    let remainingLoan = inputLoanAmount*1.035;
+    let remainingLoan = inputLoanAmount*1.025;
     let homeValue = purchasePrice;
     let inflationAdjustedIncome = monthlyIncome*12;
+    let avgMiete = 0, avgKaufpreis = 0;
+
 
     if(activeSelectedProperties === null){
-        let avgMiete = 0;
-        let avgKaufpreis = 0;
+        avgMiete = 0;
+        avgKaufpreis = 0;
     } else {
-        let avgMiete = extractNumericValue(activeSelectedProperties.miete) * 80;
-        let avgKaufpreis = extractNumericValue(activeSelectedProperties.Kaufpreis) * 80;
+        avgMiete = extractNumericValue(activeSelectedProperties.miete) * rentSize;
+        avgKaufpreis = extractNumericValue(activeSelectedProperties.Kaufpreis) * buySize;
+    }
 
+    rentDeposit = avgMiete * 3;
 
     //Average Prices using Local Data from .json files
     const ownerNetWorthData = [Math.round(
         3000
         + avgKaufpreis
         - (avgKaufpreis - 25000)*1.035 //Durchscnittlicher Kredit
-        )];
+    )];
     const renterNetWorthData = [Math.round(
         3000
         - avgMiete
@@ -413,11 +482,47 @@ function calculateBreakEven() {
     let currentAnnualIncome = monthlyIncome * 12;
     let currentAnnualRent = monthlyRent * 12;
     let currentAnnualGeneralExpenses = avgMonthlyExpenses * 12; // Formulating annual basis
-    let breakEvenYear = null;
+    breakEvenYear = 0;
+    let interestPayment = 0;
+    let buyerSavingsAccount2 = 0;
 
-    // 30-Year Projection Loop
+    distributionCache.renterHistory = [];
+    distributionCache.buyerHistory = [];
+
+    distributionCache.renterHistory.push({
+        netWorth: Math.max(0, currentAnnualIncome) + downPayment,
+        saved: {
+            "Income Savings": Math.max(0, currentAnnualIncome) + downPayment,
+        },
+        spent: {
+            "Rent Paid": 0,
+            "Rental Deposit": 0,
+            "Avg. Living Expenses": 0
+        }
+    });
+
+    distributionCache.buyerHistory.push({
+        netWorth: Math.max(0, currentAnnualIncome) + downPayment,
+        saved: {
+            "Home Equity Value": Math.max(0, 0),
+            "Income Savings": Math.max(0, currentAnnualIncome) + downPayment
+        },
+        spent: {
+            "Mortgage Interest Paid": 0,
+            "Property Maintenance Costs": 0*maintenanceRate,
+            "Living Expenses": 0,
+            "Remaining Unpaid Loan Principal": 0
+        }
+    });
+
     for (let year = 0; year <= 30; year++) {
-        inflationAdjustedIncome *= 1.025
+        if (year > 0) {
+            inflationAdjustedIncome *= 1.025;
+            currentAnnualIncome *= (1 + incomeGrowthRate);
+            currentAnnualGeneralExpenses *= (1 + 0.025);
+            buyerHomeValue *= (1 + appreciationRate);
+            currentAnnualRent *= (1 + rentIncreaseRate);
+        }
 
         ownerNetWorthData.push(Math.round(ownerNetWorth+=
             inflationAdjustedIncome
@@ -426,20 +531,14 @@ function calculateBreakEven() {
         ));
         renterNetWorthData.push(Math.round(renterNetWorth+=
             inflationAdjustedIncome
-            -(avgMiete*12*1.02)
+            -(currentAnnualRent)
         ));
-
-        //Inflation Adjustments
-        currentAnnualIncome *= (1 + incomeGrowthRate);
-        currentAnnualGeneralExpenses *= (1 + 0.037); // Applying standard inflation rate to all none housing related extra costs.
-
-        buyerHomeValue *= (1 + appreciationRate);
 
         let dynamicAnnualPayment = annualMortgagePayment;
         let principalRepayment = 0;
 
         if (buyerRemainingLoan > 0) {
-            let interestPayment = buyerRemainingLoan * mortgageRate;
+            interestPayment = buyerRemainingLoan * mortgageRate;
 
             principalRepayment = dynamicAnnualPayment - interestPayment;
 
@@ -470,18 +569,48 @@ function calculateBreakEven() {
 
         let buyerSurplus = currentAnnualIncome - dynamicAnnualPayment - annualMaintenance - currentAnnualGeneralExpenses;
         buyerSavingsAccount += buyerSurplus;
+        let newBuyerSp = inflationAdjustedIncome - inputLoanRepayment;
+        buyerSavingsAccount2 += buyerSurplus;
 
         let totalBuyerNetWorth = ownerHomeEquityValue + buyerSavingsAccount;
         cumulativePurchasePaidData.push(Math.round(totalBuyerNetWorth));
 
-
-        currentAnnualRent *= (1 + rentIncreaseRate);
-
         let renterSurplus = currentAnnualIncome - currentAnnualRent - currentAnnualGeneralExpenses;
-        renterSavingsAccount += renterSurplus;
-
         let totalRenterNetWorth = renterSavingsAccount + rentDeposit;
-        cumulativeRentPaidData.push(Math.round(totalRenterNetWorth));
+
+        if(year === 1){
+            renterSavingsAccount += renterSurplus;
+            cumulativeRentPaidData.push(Math.round(totalRenterNetWorth));
+        }else {
+            renterSavingsAccount += renterSurplus;
+            cumulativeRentPaidData.push(Math.round(totalRenterNetWorth));
+        }
+
+        distributionCache.renterHistory.push({
+            netWorth: totalRenterNetWorth,
+            saved: {
+                "Income Savings": Math.max(0, renterSavingsAccount),
+            },
+            spent: {
+                "Rent Paid": currentAnnualRent,
+                "Rental Deposit": rentDeposit*3,
+                "Avg. Living Expenses": currentAnnualGeneralExpenses
+            }
+        });
+
+        distributionCache.buyerHistory.push({
+            netWorth: totalBuyerNetWorth,
+            saved: {
+                "Income Savings": Math.max(0, buyerSavingsAccount2),
+                "Home Equity Value": Math.max(0, ownerHomeEquityValue)
+            },
+            spent: {
+                "Mortgage Interest Paid": interestPayment,
+                "Property Maintenance Costs": annualMaintenance,
+                "Living Expenses": currentAnnualGeneralExpenses,
+                "Remaining Unpaid Loan Principal": buyerRemainingLoan
+            }
+        });
 
         //Timeline Comparison
         labels.push(`Year ${year}`);
@@ -493,7 +622,8 @@ function calculateBreakEven() {
 
     renderLineChartCanvas(labels, renterNetWorthData, ownerNetWorthData, cumulativeRentPaidData, cumulativePurchasePaidData);
     updateBreakEvenSummary(cumulativePurchasePaidData, cumulativeRentPaidData);
-    }
+    updateYearlyDistributionCharts();
+    updateUserStory();
 }
 
 function inputExceptionHandler(){
@@ -612,10 +742,201 @@ function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyDat
                 }
             }
         });
+        setTimeout(() => {
+            if (breakEvenChartInstance) {
+                breakEvenChartInstance.resize();
+            }
+        }, 50);
         toggleChartLineVisibility();
     }
 }
 
+/**
+ * Triggers on slider interaction. Reads cached snapshots and compiles
+ * Chart.js configurations dynamically.
+ */
+function updateYearlyDistributionCharts() {
+    const yearSlider = document.getElementById('breakdown-year-slider');
+    const yearDisplay = document.getElementById('slider-year-display');
+    if (!yearSlider || !yearDisplay) return;
+
+    const selectedYear = parseInt(yearSlider.value);
+    yearDisplay.textContent = selectedYear;
+
+    const renterSnapshot = distributionCache.renterHistory[selectedYear];
+    const buyerSnapshot = distributionCache.buyerHistory[selectedYear];
+
+    if (!renterSnapshot || !buyerSnapshot) return;
+
+    const renterNetWorthHeader = document.getElementById('renter-header-networth');
+    const buyerNetWorthHeader = document.getElementById('buyer-header-networth');
+
+    if (renterNetWorthHeader) {
+        renterNetWorthHeader.textContent = Math.round(renterSnapshot.netWorth).toLocaleString('de-AT') + " €";
+    }
+    if (buyerNetWorthHeader) {
+        buyerNetWorthHeader.textContent = Math.round(buyerSnapshot.netWorth).toLocaleString('de-AT') + " €";
+    }
+
+    const renterNetWorth = renterSnapshot.netWorth;
+    const buyerNetWorth = buyerSnapshot.netWorth;
+    const absoluteGap = Math.abs(renterNetWorth - buyerNetWorth);
+
+// Determine the leader to style the margin text color contextually
+    let marginTextColor = "#718096";
+    if (renterNetWorth > buyerNetWorth) {
+        marginTextColor = "#2e7d32"; // Green if Renter is ahead
+    } else if (buyerNetWorth > renterNetWorth) {
+        marginTextColor = "#0066cc"; // Blue if Owner is ahead
+    }
+
+    const leaderTitleElement = document.getElementById('difference-leader-title');
+    if (leaderTitleElement) {
+        leaderTitleElement.textContent = Math.round(absoluteGap).toLocaleString('de-AT') + " €";
+        leaderTitleElement.style.color = marginTextColor;
+    }
+
+// Render/Refresh the Comparison Chart Instance with 2 distinct datasets
+    const ctxDiff = document.getElementById('differenceChart').getContext('2d');
+    if (netWorthDifferenceInstance) {
+        // Dynamically inject the live year's data values into the active chart view
+        netWorthDifferenceInstance.data.datasets[0].data = [renterNetWorth];
+        netWorthDifferenceInstance.data.datasets[1].data = [buyerNetWorth];
+        netWorthDifferenceInstance.update();
+    } else {
+        netWorthDifferenceInstance = new Chart(ctxDiff, {
+            type: 'bar',
+            data: {
+                labels: ['Total Wealth Portfolio'], // Single category axis grouping
+                datasets: [
+                    {
+                        label: 'Renter Net Worth',
+                        data: [renterNetWorth],
+                        backgroundColor: '#2e7d32', // Matches your renter donut colors
+                        borderRadius: 4,
+                        barThickness: 25
+                    },
+                    {
+                        label: 'Owner Net Worth',
+                        data: [buyerNetWorth],
+                        backgroundColor: '#0066cc', // Matches your owner donut colors
+                        borderRadius: 4,
+                        barThickness: 25
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y', // Keeps the chart layout horizontal for easy reading
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { boxWidth: 12, font: { size: 9 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.dataset.label}: ${Math.round(context.raw).toLocaleString('de-AT')} €`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value.toLocaleString('de-AT') + " €"; },
+                            font: { size: 9 }
+                        }
+                    },
+                    y: { display: false } // Hidden because the dataset legend provides labels
+                }
+            }
+        });
+    }
+
+    // Compile Renter Dataset Structures
+    const renterLabels = [...Object.keys(renterSnapshot.saved), ...Object.keys(renterSnapshot.spent)];
+    const renterDataValues = [...Object.values(renterSnapshot.saved), ...Object.values(renterSnapshot.spent)];
+    const renterColors = [
+        colorPalette[0], colorPalette[2],   // SAVED CATEGORIES
+        colorPalette[10], colorPalette[8]   // SPENT CATEGORIES
+    ];
+
+    // Compile Buyer Dataset Structures
+    const buyerLabels = [...Object.keys(buyerSnapshot.saved), ...Object.keys(buyerSnapshot.spent)];
+    const buyerDataValues = [...Object.values(buyerSnapshot.saved), ...Object.values(buyerSnapshot.spent)];
+    const buyerColors = [
+        colorPalette[0], colorPalette[2],                               // SAVED CATEGORIES
+        colorPalette[10], colorPalette[9], colorPalette[8], colorPalette[5] // SPENT CATEGORIES
+    ];
+
+    // Render/Refresh Renter Donut Instance
+    const ctxRenter = document.getElementById('renterDonutChart').getContext('2d');
+    if (renterDonutInstance) {
+        renterDonutInstance.data.labels = renterLabels;
+        renterDonutInstance.data.datasets[0].data = renterDataValues;
+        renterDonutInstance.data.datasets[0].backgroundColor = renterColors;
+        renterDonutInstance.update();
+    } else {
+        renterDonutInstance = createStandardDonutCanvas(ctxRenter, renterLabels, renterDataValues, renterColors);
+    }
+
+    // Render/Refresh Buyer Donut Instance
+    const ctxBuyer = document.getElementById('buyerDonutChart').getContext('2d');
+    if (buyerDonutInstance) {
+        buyerDonutInstance.data.labels = buyerLabels;
+        buyerDonutInstance.data.datasets[0].data = buyerDataValues;
+        buyerDonutInstance.data.datasets[0].backgroundColor = buyerColors;
+        buyerDonutInstance.update();
+    } else {
+        buyerDonutInstance = createStandardDonutCanvas(ctxBuyer, buyerLabels, buyerDataValues, buyerColors);
+    }
+}
+
+/**
+ * Higher-order utility function to isolate Chart.js layout instantiations
+ */
+function createStandardDonutCanvas(ctx, labels, data, colors) {
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 10,
+                        font: { size: 9 },
+                        padding: 8
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw || 0;
+                            return ` ${context.label}: ${Math.round(value).toLocaleString('de-AT')} €`;
+                        }
+                    }
+                }
+            },
+            cutout: '65%' // Creates a clean donut center profile space
+        }
+    });
+}
 function updateBreakEvenSummary(purchaseData, rentData) {
     const summaryBox = document.getElementById('break-even-summary-text');
     const readMoreBtn = document.getElementById('btn-read-more');
@@ -626,10 +947,9 @@ function updateBreakEvenSummary(purchaseData, rentData) {
     // 1. Calculate outcomes and differences for Year 30 (index 29)
     const finalRenterNetWorth = rentData[29];
     const finalOwnerNetWorth = purchaseData[29];
-    const netWorthDifference = Math.abs(finalRenterNetWorth - finalOwnerNetWorth);
+    netWorthDifference = Math.abs(finalRenterNetWorth - finalOwnerNetWorth);
     const winner = finalRenterNetWorth > finalOwnerNetWorth ? "Renter" : "Property Owner";
 
-    let breakEvenYear = null;
     for (let year = 0; year < 30; year++) {
         if (purchaseData[year] > rentData[year]) {
             breakEvenYear = year + 1;
@@ -655,9 +975,7 @@ function updateBreakEvenSummary(purchaseData, rentData) {
 
     const totalPurchaseCost = buySize * inputPriceM2;
 
-    let extendedDeepDiveText = `
-        <p>Here is a detailed explenation on what our Graph represents, what a break even point is and how it is calculated.</p>
-        
+    let extendedDeepDiveText = `     
         <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Disclaimer:</h4>
         <p>
         We use net worth over time as our main metric because it provides the most accurate representation of your overall wealth. It includes both your accumulated savings and the value of your property.
@@ -665,71 +983,13 @@ function updateBreakEvenSummary(purchaseData, rentData) {
         This is because a buyer has invested a significant portion of their savings and income into purchasing a property.
         Therefore, the most accurate way to represent our data is by considering all relevant financial assets instead of only the remaining cash.
         </p>
-        
-        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Graph Description:</h4>
-        <p>
-            <strong>Green dotted line:</strong> Represents the average net-worth development of a renter living in the selected state or district. The calculation is based on the average rent for an 80 m² property.
-            <br><strong>Blue dotted line:</strong> Represents the average net-worth development of a homeowner who already owns an 80 m² property in the selected state or district. It is assumed that any mortgage has already been fully paid off.
-            <br><strong>Yellow line:</strong> Represents your projected net-worth development while renting. It combines your personal financial information with the average rental prices and living costs in the selected state or district.
-            <br><strong>Red line:</strong> Represents your projected net-worth development while buying. It combines your personal financial information with the average property prices and ownership costs in the selected state or district.
-        </p>
-        
         <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Break-Even Point</h4>
         <p>
         The break-even point is where the red and yellow lines intersect. It marks the point at which buying and renting result in the same net worth.
         After this point, owning a property generally becomes the better financial investment. In most scenarios, the break-even point indicates when buying starts to outperform renting in terms of total net worth.
         </p>
-        
-        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">How Does the Break-Even Calculator Work?</h4>
-        <p>
-        <h4>Renting</h4>
-        You start with your available equity, minus any rental deposit, which remains in your bank account. Every month, the calculator adds your income and subtracts your living expenses and rent. Rent is assumed to increase by approximately 2.3% per year, based on the average rent increase in Austria.
-        <br>If renting remains significantly cheaper than paying a mortgage, you are able to save more money each month. Over time, these savings increase your overall net worth and may outperform buying, depending on your situation.
-        <h4>Buying</h4>
-        When purchasing a property, you first pay the typical Austrian closing costs, including expenses such as Grunderwerbsteuer, Grundbucheintragung, Maklergebühren, and Notarkosten. These costs are based on Austrian averages and are added to the mortgage amount.
-        <br>Because of these upfront expenses, buyers often start with a negative net worth. Each month, you make a fixed mortgage payment. The calculator tracks both the increase in your property's market value and the reduction of your remaining loan balance. With every mortgage payment, you gradually transfer ownership of the property from the bank to yourself.
-        </p>
-        
-        <h3 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Purchasing a propety based on your information:</h3>
-        <p>
-            The selected district has a property price of <strong>${Math.round(inputPriceM2).toLocaleString('de-AT')} € per m²</strong>. 
-            Multiplying that by your desired size of ${buySize}m² brings the raw sticker price of the home to <strong>${Math.round(totalPurchaseCost).toLocaleString('de-AT')} €</strong>.
-        </p>
-        <p style="margin-top: 6px;">
-            Since you are putting down your <strong>${downPayment.toLocaleString('de-AT')} €</strong> of hard equity capital right away, you have to take a loan for the rest. 
-            That leaves you with a bank loan principal of <strong>${Math.round(inputLoanAmount).toLocaleString('de-AT')} €</strong>. 
-            Every single month, you lock in a fixed <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> mortgage repayment. 
-            Out of your monthly houshold income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>, after paying the bank and your normal living expenses of <strong>${avgMonthlyExpenses.toLocaleString('de-AT')} €</strong>, 
-            whatever income is left over gets saved. Furthermore, everytime you pay back a portion of the loan, the repayment value is added to the value of your purchased property.
-            As an example, if you pay of 50% of your loan, about 50% of your property value (+ appreciation) is added to your net-worth.
-        </p>
-
-        <h3 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Renting a propety based on your information:</h3>
-        <p>
-            Instead of buying, you start by renting an <strong>${rentSize.toLocaleString('de-AT')} m²</strong> space. Your initial monthly rent is set at <strong>${monthlyRent.toLocaleString('de-AT')} €</strong>, 
-            and you hand over an upfront safety deposit of <strong>${rentDeposit.toLocaleString('de-AT')} €</strong>.
-        </p>
-        <p style="margin-top: 6px;">
-            Crucially, the renter gets to keep their <strong>${downPayment.toLocaleString('de-AT')} €</strong> of equity in their pocket on Day 1 and also dosnt need to pay the additional upfront costs that come with buying a property.
-            With the additional cash, you would keep a sizable lead, at the start, in the net-worth race, depending on the desired property location and size the buyer sometimes cant catch up.           
-        </p>
-
-        <h4 style="margin-top: 15px; margin-bottom: 5px; color: #ae0000; font-size: 1.5rem;">Why do the lines cross? (The Break Even Point)</h4>
-        <p>
-            Why does the chart change?:
-        </p>
-        <ul style="margin-left: 20px; margin-top: 6px; margin-bottom: 10px; line-height: 1.5; color: #4a5568;">
-            <li><strong>Rent Inflation:</strong> Your rent isn't fixed. With an expected annual increase of <strong>${2.0}%</strong>, that initial ${monthlyRent} € payment quietly creeps up year after year, slowly eating away at the renter's monthly savings pool.</li>
-            <li><strong>The 30-Year Loan Horizon:</strong> While the renter's payments keep climbing forever, the buyer's mortgage eventually gets fully paid off. Suddenly, the buyer owns a massive, valuable asset completely debt-free and has zero housing payments!</li>
-        </ul>
-        
-        <p style="margin-top: 12px; background: #fdf2f2; padding: 12px; border-radius: 4px; font-weight: 500; border-left: 3px solid #ae0000;">
-            <strong>Final Verdict:</strong> ${breakEvenYear
-        ? `In the beginning, the renter is wealthier due to the saved "cash" and lower additional initial costs. But around <strong>Year ${breakEvenYear}</strong>, the rising cost of rent and the building value of the property owner causes the lines to cross. After 30 years, the property owner wins by a sizeable margin of <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`
-        : `Due to the disparity in the property purchasing price and the monthly rent, the renter's net-worth grows faster, then that of the property owner. Over the 30-year horizon, renting remains the financially superior path by <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`}
-        <br> This ofcourse only takes into consideration the average monthly operating costs and does not 100% accuratly represent a house or appartments real monthly costs.
-        </p>
     `;
+
 
     if (modalTextBox) {
         modalTextBox.innerHTML = extendedDeepDiveText;
@@ -739,12 +999,58 @@ function updateBreakEvenSummary(purchaseData, rentData) {
     }
 }
 
+function updateUserStory(){
+    const buyStoryText = document.getElementById("user-input-buyStory");
+    const rentStoryText = document.getElementById("user-input-rentStory");
+    const finalVerdictText = document.getElementById("insight-card-results");
+
+    let userBuyCard = ` 
+            <div class="card-icon">🏡</div>
+            <strong>Buying</strong>
+            <br>
+            <br>  
+            The selected district has a property price of <strong>${Math.round(inputPriceM2).toLocaleString('de-AT')} € per m²</strong>. 
+            Multiplying that by your desired size of ${buySize}m² brings the raw sticker price of the home to <strong>${Math.round(buySize*inputPriceM2).toLocaleString('de-AT')} €</strong>, with the typical Austrian closing costs, including expenses such as Grunderwerbsteuer, Grundbucheintragung, Maklergebühren, and Notarkosten already included.
+            <br>
+            <br>
+            Your <strong>${downPayment.toLocaleString('de-AT')} €</strong> equity covers part of the purchase, leaving a loan of <strong>${Math.round(inputLoanAmount).toLocaleString('de-AT')} €</strong> at <strong>${inputLoanRepayment.toLocaleString('de-AT')} €/month</strong>. From your <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong> income, 
+            mortgage and living expenses of <strong>${avgMonthlyExpenses.toLocaleString('de-AT')} €</strong> are deducted first — the remainder is saved. Each repayment also builds equity: as you pay down the loan, the corresponding share of the property's value (plus appreciation) counts toward your net worth. 
+    `;
+
+    let userRentCard = `   
+           <div class="card-icon">🏙</div>
+           <strong>Renting</strong>
+           <br>
+           <br>
+                   
+            You rent <strong>${rentSize.toLocaleString('de-AT')} m²</strong> at <strong>${monthlyRent.toLocaleString('de-AT')} €/month</strong> with a deposit of <strong>${rentDeposit.toLocaleString('de-AT')} €</strong>.
+            Rent is assumed to increase by approximately 2.3% per year, based on the average rent increase in Austria.
+            <br> 
+            <br>  
+            Crucially, your <strong>${downPayment.toLocaleString('de-AT')} €</strong> stays invested from day one — giving renters a significant early lead in net worth.  
+            If renting remains significantly cheaper than paying a mortgage, you are able to save more money each month. Over time, these savings increase your overall net worth and may outperform buying, depending on your situation.          
+    `;
+
+    let userFinalVerdict = `
+        <div class="insights-card-num">Break Even Calculator Results</div>
+        <h3>Final Verdict</h3>
+        <strong>Final Verdict:</strong> ${breakEvenYear
+        ? `In the beginning, the renter is wealthier due to the saved "cash" and lower additional initial costs. But around <strong>Year ${breakEvenYear}</strong>, the rising cost of rent and the building value of the property owner causes the lines to cross. After 30 years, the property owner wins by a sizeable margin of <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`
+        : `Due to the disparity in the property purchasing price and the monthly rent, the renter's net-worth grows faster, then that of the property owner. Over the 30-year horizon, renting remains the financially superior path by <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`}
+        <br> This ofcourse only takes into consideration the average monthly operating costs and does not 100% accuratly represent a house or appartments real monthly costs.
+    `;
+
+    buyStoryText.innerHTML = userBuyCard;
+    rentStoryText.innerHTML = userRentCard;
+    finalVerdictText.innerHTML = userFinalVerdict;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');
     if (mapEl) {
         // Ensure the container actually exists in the DOM
         map = L.map('map', {
-            zoomControl: true,
+            zoomControl: false,
             minZoom: 4,
             maxZoom: 11,
             maxBounds: L.latLngBounds(L.latLng(46.2, 9.3), L.latLng(49.1, 17.3)),
@@ -755,12 +1061,45 @@ window.addEventListener('DOMContentLoaded', () => {
         loadGeoJsonFiles();
         updateLegendLabels('Kaufpreis');
     }
+
+    const loanCheckbox = document.getElementById('toggle-loan-check');
+    const loanInput = document.getElementById('param-loan-amount');
+
+    if (loanCheckbox && loanInput) {
+        loanCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                // 1. Enable the input element so the user can type
+                loanInput.disabled = false;
+
+                // Optional UI refinement: clear out the default 0
+                // so they don't have to backspace it
+                if (loanInput.value === "0") {
+                    loanInput.value = "";
+                }
+                loanInput.focus(); // Pull cursor focus instantly
+            } else {
+                // 2. Disable it again if they uncheck it
+                loanInput.disabled = true;
+                loanInput.value = "0"; // Reset back to default auto state
+
+                // Force a calculation sweep to recalculate the auto-loan amount
+                if (typeof handleManualRecalculate === "function") {
+                    handleManualRecalculate();
+                }
+            }
+        });
+    }
+
 });
 
 // Forces Leaflet to recalibrate and adjust internal tile alignment limits immediately on viewport adjustment events
 window.addEventListener('resize', () => {
     if (map) {
         map.invalidateSize({ animate: true });
+    }
+
+    if (breakEvenChartInstance && typeof breakEvenChartInstance.resize === 'function') {
+        breakEvenChartInstance.resize();
     }
 });
 
