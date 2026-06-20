@@ -16,10 +16,10 @@
     };
 
     const GROUP_COLOR_MAP = {
-        'Single-family': '#c62828',
-        'Multi-family': '#2e7d32',
-        'Single-person': '#1565c0',
-        'Multi-person (Non-fam)': '#e65100'
+        'Single-family': '#DC267F',
+        'Multi-family': '#FE6100',
+        'Single-person': '#648FFF',
+        'Multi-person (Non-fam)': '#FFB000'
     };
 
     const NODE_DESCRIPTIONS = {

@@ -53,10 +53,10 @@
         const mk = einkommen.kategorien['Haushalte mit Kindern'];
         const find = (arr, label) => arr.find(d => d.label === label);
         return [
-            rowToIncomeGroup('Single-person', '#1565c0', find(hg, '1 Person')),
-            rowToIncomeGroup('Multi-person, no children', '#e65100', find(ohp, 'Mehrpersonenhaushalt ohne Kinder')),
-            rowToIncomeGroup('Multi-person with children', '#c62828', mk.summe),
-            rowToIncomeGroup('Multi-family (5+ persons)', '#2e7d32', find(hg, '5 und mehr Personen')),
+            rowToIncomeGroup('Single-person', '#648FFF', find(hg, '1 Person')),
+            rowToIncomeGroup('Multi-person, no children', '#FFB000', find(ohp, 'Mehrpersonenhaushalt ohne Kinder')),
+            rowToIncomeGroup('Multi-person with children', '#FE6100', mk.summe),
+            rowToIncomeGroup('Multi-family (5+ persons)', '#DC267F', find(hg, '5 und mehr Personen')),
         ];
     }
 
