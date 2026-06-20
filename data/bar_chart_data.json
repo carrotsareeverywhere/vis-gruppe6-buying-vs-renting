@@ -1,5 +1,6 @@
 [
   {
+    "_comment": "Source: STATISTIK AUSTRIA, Wohnen 2025 — Tables 1.13, 2.4, p. 54",
     "id": "house_owner",
     "type": "House Owner",
     "avg_sqm": 148.7,
@@ -8,6 +9,7 @@
     "energy": 201.00,
     "misc": 0
   },
+
   {
     "id": "apt_owner",
     "type": "Apt. Owner",

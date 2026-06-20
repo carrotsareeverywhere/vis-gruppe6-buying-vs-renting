@@ -1037,7 +1037,7 @@ function updateUserStory(){
         <strong>Final Verdict:</strong> ${breakEvenYear
         ? `In the beginning, the renter is wealthier due to the saved "cash" and lower additional initial costs. But around <strong>Year ${breakEvenYear}</strong>, the rising cost of rent and the building value of the property owner causes the lines to cross. After 30 years, the property owner wins by a sizeable margin of <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`
         : `Due to the disparity in the property purchasing price and the monthly rent, the renter's net-worth grows faster, then that of the property owner. Over the 30-year horizon, renting remains the financially superior path by <strong>${Math.round(netWorthDifference).toLocaleString('de-AT')} €</strong>.`}
-        <br> This ofcourse only takes into consideration the average monthly operating costs and does not 100% accuratly represent a house or appartments real monthly costs.
+        <br> This of course only takes into consideration the average monthly operating costs and does not 100% accurately represent a house or apartments real monthly costs.
     `;
 
     buyStoryText.innerHTML = userBuyCard;
