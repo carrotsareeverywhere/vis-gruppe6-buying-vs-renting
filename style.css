@@ -348,6 +348,13 @@ body {
     margin-bottom: 0.9rem;
 }
 
+.material-symbols-outlined {
+    font-size: inherit;
+    vertical-align: middle;
+    margin: 0 4px;
+    color: var(--red-dark);
+}
+
 .story-card strong {
     color: var(--ink);
     font-size: 1.05rem;

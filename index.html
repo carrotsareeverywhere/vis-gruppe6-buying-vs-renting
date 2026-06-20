@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy or Rent — Austria</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet"  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -60,7 +61,7 @@
                 <div class="intro-columns">
 
                     <div class="story-card">
-                        <div class="card-icon">📊</div>
+                        <div class="card-icon"><span class="material-symbols-outlined">bar_chart</span></div>
                         <strong>What does this calculator do?</strong>
                         <br>
                         <br>
@@ -69,13 +70,13 @@
                     </div>
 
                     <div class="story-card">
-                        <div class="card-icon">🗺️</div>
+                        <div class="card-icon"><span class="material-symbols-outlined">map</span></div>
                         <strong>How to use it</strong>
                         <br>
                         <br>
-                        <p>📍 Select the <b>Federal States</b> or <b>Districts</b> layer and click a region on the map.</p>
-                        <p>🏠 Review or adjust your household details. Property prices and rent are automatically filled from regional data.</p>
-                        <p>📈 Run the calculation and compare renting vs. buying over time. Find your personal break-even point.</p>
+                        <p><span class="material-symbols-outlined">pin_drop</span> Select the <b>Federal States</b> or <b>Districts</b> layer and click a region on the map.</p>
+                        <p><span class="material-symbols-outlined">house</span> Review or adjust your household details. Property prices and rent are automatically filled from regional data.</p>
+                        <p><span class="material-symbols-outlined">trending_up</span> Run the calculation and compare renting vs. buying over time. Find your personal break-even point.</p>
                     </div>
 
                 </div>
@@ -259,7 +260,7 @@
 
                     <!-- Lock overlay: hidden once user clicks a map region -->
                     <div id="breakdown-lock-overlay">
-                        <div class="lock-overlay-icon">🗺️</div>
+                        <div class="lock-overlay-icon"><span class="material-symbols-outlined">vpn_lock</span></div>
                         <div class="lock-overlay-title">Select a region first</div>
                         <p class="lock-overlay-hint">Click on any region in the interactive map above to load regional data and unlock the wealth distribution analysis.</p>
                     </div>
@@ -319,14 +320,14 @@
 
             <div class="insights-side-column">
                 <div class="story-card" id="user-input-rentStory">
-                    <div class="card-icon">🏙</div>
+                    <div class="card-icon"><span class="material-symbols-outlined">apartment</span></div>
                     <strong>Renting</strong>
                     <br>
                     <br>
                     Select a region first ...
                 </div>
                 <div class="story-card" id="user-input-buyStory">
-                    <div class="card-icon">🏡</div>
+                    <div class="card-icon"><span class="material-symbols-outlined">home_and_garden</span></div>
                     <strong>Buying</strong>
                     <br>
                     <br>
