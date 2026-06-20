@@ -1,0 +1,548 @@
+{
+  "title": "Tabelle 1.3: Rechtsverhältnis nach wohnspezifischen und soziodemographischen Merkmalen ",
+  "unit": "Anteile in % (Spalte 'insgesamt_in_1000' in 1 000 Haushalten)",
+  "columns": [
+    "insgesamt_in_1000",
+    "hauseigentum",
+    "wohnungseigentum",
+    "gemeindewohnung",
+    "genossenschaftswohnung",
+    "andere_hauptmiete",
+    "sonstige"
+  ],
+  "footnote": "Q: STATISTIK AUSTRIA, Mikrozensus. 1) Hauptmietwohnungen, ohne Wohnungen mit unbekannter Mietvertragsdauer. – 2) Hauptmietwohnungen.",
+  "gesamt": {
+    "label": "Insgesamt",
+    "insgesamt_in_1000": 4158.473,
+    "hauseigentum": 36.233,
+    "wohnungseigentum": 11.685,
+    "gemeindewohnung": 6.828,
+    "genossenschaftswohnung": 16.704,
+    "andere_hauptmiete": 19.446,
+    "sonstige": 9.104
+  },
+  "kategorien": {
+    "Gemeindegrößenklasse": [
+      {
+        "label": "Wien",
+        "insgesamt_in_1000": 972.851,
+        "hauseigentum": 5.268,
+        "wohnungseigentum": 14.328,
+        "gemeindewohnung": 21.254,
+        "genossenschaftswohnung": 20.48,
+        "andere_hauptmiete": 34.218,
+        "sonstige": 4.452
+      },
+      {
+        "label": "andere Gemeinden > 100 000 Einw.",
+        "insgesamt_in_1000": 459.522,
+        "hauseigentum": 12.336,
+        "wohnungseigentum": 19.457,
+        "gemeindewohnung": 4.235,
+        "genossenschaftswohnung": 26.455,
+        "andere_hauptmiete": 31.286,
+        "sonstige": 6.231
+      },
+      {
+        "label": "Gemeinden > 10 000 u. ≤ 100 000 Einw.",
+        "insgesamt_in_1000": 712.156,
+        "hauseigentum": 31.95,
+        "wohnungseigentum": 14.813,
+        "gemeindewohnung": 4.0,
+        "genossenschaftswohnung": 23.886,
+        "andere_hauptmiete": 17.752,
+        "sonstige": 7.599
+      },
+      {
+        "label": "Gemeinden ≤ 10 000 Einw.",
+        "insgesamt_in_1000": 2013.944,
+        "hauseigentum": 58.159,
+        "wohnungseigentum": 7.529,
+        "gemeindewohnung": 1.451,
+        "genossenschaftswohnung": 10.115,
+        "andere_hauptmiete": 10.209,
+        "sonstige": 12.538
+      }
+    ],
+    "Bundesland": [
+      {
+        "label": "Burgenland",
+        "insgesamt_in_1000": 133.634,
+        "hauseigentum": 63.49,
+        "wohnungseigentum": 3.883,
+        "gemeindewohnung": 0.456,
+        "genossenschaftswohnung": 15.594,
+        "andere_hauptmiete": 5.593,
+        "sonstige": 10.983
+      },
+      {
+        "label": "Kärnten",
+        "insgesamt_in_1000": 263.012,
+        "hauseigentum": 47.679,
+        "wohnungseigentum": 7.912,
+        "gemeindewohnung": 3.797,
+        "genossenschaftswohnung": 18.459,
+        "andere_hauptmiete": 12.223,
+        "sonstige": 9.928
+      },
+      {
+        "label": "Niederösterreich",
+        "insgesamt_in_1000": 764.664,
+        "hauseigentum": 55.385,
+        "wohnungseigentum": 7.664,
+        "gemeindewohnung": 2.876,
+        "genossenschaftswohnung": 15.264,
+        "andere_hauptmiete": 9.447,
+        "sonstige": 9.365
+      },
+      {
+        "label": "Oberösterreich",
+        "insgesamt_in_1000": 672.976,
+        "hauseigentum": 43.538,
+        "wohnungseigentum": 8.784,
+        "gemeindewohnung": 0.531,
+        "genossenschaftswohnung": 21.48,
+        "andere_hauptmiete": 13.61,
+        "sonstige": 12.058
+      },
+      {
+        "label": "Salzburg",
+        "insgesamt_in_1000": 252.935,
+        "hauseigentum": 33.086,
+        "wohnungseigentum": 16.049,
+        "gemeindewohnung": 1.597,
+        "genossenschaftswohnung": 15.406,
+        "andere_hauptmiete": 22.606,
+        "sonstige": 11.256
+      },
+      {
+        "label": "Steiermark",
+        "insgesamt_in_1000": 573.681,
+        "hauseigentum": 44.602,
+        "wohnungseigentum": 11.763,
+        "gemeindewohnung": 3.368,
+        "genossenschaftswohnung": 13.078,
+        "andere_hauptmiete": 18.309,
+        "sonstige": 8.88
+      },
+      {
+        "label": "Tirol",
+        "insgesamt_in_1000": 345.325,
+        "hauseigentum": 35.195,
+        "wohnungseigentum": 18.343,
+        "gemeindewohnung": 3.304,
+        "genossenschaftswohnung": 9.477,
+        "andere_hauptmiete": 20.939,
+        "sonstige": 12.743
+      },
+      {
+        "label": "Vorarlberg",
+        "insgesamt_in_1000": 179.396,
+        "hauseigentum": 37.714,
+        "wohnungseigentum": 17.5,
+        "gemeindewohnung": 3.479,
+        "genossenschaftswohnung": 10.037,
+        "andere_hauptmiete": 21.076,
+        "sonstige": 10.194
+      },
+      {
+        "label": "Wien",
+        "insgesamt_in_1000": 972.851,
+        "hauseigentum": 5.268,
+        "wohnungseigentum": 14.328,
+        "gemeindewohnung": 21.254,
+        "genossenschaftswohnung": 20.48,
+        "andere_hauptmiete": 34.218,
+        "sonstige": 4.452
+      }
+    ],
+    "Bauperiode": [
+      {
+        "label": "vor 1919",
+        "insgesamt_in_1000": 584.124,
+        "hauseigentum": 26.148,
+        "wohnungseigentum": 7.95,
+        "gemeindewohnung": 1.391,
+        "genossenschaftswohnung": 2.26,
+        "andere_hauptmiete": 50.281,
+        "sonstige": 11.97
+      },
+      {
+        "label": "1919 bis 1944",
+        "insgesamt_in_1000": 261.696,
+        "hauseigentum": 27.447,
+        "wohnungseigentum": 3.049,
+        "gemeindewohnung": 26.104,
+        "genossenschaftswohnung": 19.029,
+        "andere_hauptmiete": 16.714,
+        "sonstige": 7.657
+      },
+      {
+        "label": "1945 bis 1960",
+        "insgesamt_in_1000": 393.187,
+        "hauseigentum": 35.413,
+        "wohnungseigentum": 6.319,
+        "gemeindewohnung": 18.437,
+        "genossenschaftswohnung": 14.315,
+        "andere_hauptmiete": 15.678,
+        "sonstige": 9.838
+      },
+      {
+        "label": "1961 bis 1970",
+        "insgesamt_in_1000": 510.686,
+        "hauseigentum": 31.881,
+        "wohnungseigentum": 10.725,
+        "gemeindewohnung": 11.496,
+        "genossenschaftswohnung": 16.974,
+        "andere_hauptmiete": 15.79,
+        "sonstige": 13.134
+      },
+      {
+        "label": "1971 bis 1980",
+        "insgesamt_in_1000": 554.445,
+        "hauseigentum": 38.117,
+        "wohnungseigentum": 15.294,
+        "gemeindewohnung": 7.124,
+        "genossenschaftswohnung": 11.846,
+        "andere_hauptmiete": 14.249,
+        "sonstige": 13.37
+      },
+      {
+        "label": "1981 bis 1990",
+        "insgesamt_in_1000": 455.503,
+        "hauseigentum": 46.506,
+        "wohnungseigentum": 13.313,
+        "gemeindewohnung": 4.024,
+        "genossenschaftswohnung": 15.722,
+        "andere_hauptmiete": 9.767,
+        "sonstige": 10.667
+      },
+      {
+        "label": "1991 bis 2000",
+        "insgesamt_in_1000": 380.582,
+        "hauseigentum": 45.087,
+        "wohnungseigentum": 15.316,
+        "gemeindewohnung": 1.763,
+        "genossenschaftswohnung": 20.477,
+        "andere_hauptmiete": 10.992,
+        "sonstige": 6.365
+      },
+      {
+        "label": "2001 bis 2010",
+        "insgesamt_in_1000": 458.777,
+        "hauseigentum": 45.291,
+        "wohnungseigentum": 15.591,
+        "gemeindewohnung": 0.857,
+        "genossenschaftswohnung": 22.014,
+        "andere_hauptmiete": 11.752,
+        "sonstige": 4.496
+      },
+      {
+        "label": "2011 und später",
+        "insgesamt_in_1000": 559.474,
+        "hauseigentum": 31.741,
+        "wohnungseigentum": 13.698,
+        "gemeindewohnung": 1.4,
+        "genossenschaftswohnung": 30.819,
+        "andere_hauptmiete": 19.609,
+        "sonstige": 2.733
+      }
+    ],
+    "Ausstattungskategorie": [
+      {
+        "label": "Kategorie A",
+        "insgesamt_in_1000": 3891.117,
+        "hauseigentum": 36.904,
+        "wohnungseigentum": 11.755,
+        "gemeindewohnung": 6.715,
+        "genossenschaftswohnung": 17.0,
+        "andere_hauptmiete": 18.695,
+        "sonstige": 8.931
+      },
+      {
+        "label": "Kategorie B",
+        "insgesamt_in_1000": 236.741,
+        "hauseigentum": 28.714,
+        "wohnungseigentum": 11.595,
+        "gemeindewohnung": 9.269,
+        "genossenschaftswohnung": 13.145,
+        "andere_hauptmiete": 25.934,
+        "sonstige": 11.342
+      },
+      {
+        "label": "Kategorie C",
+        "insgesamt_in_1000": 5.565,
+        "hauseigentum": 30.634,
+        "wohnungseigentum": 9.782,
+        "gemeindewohnung": 2.6,
+        "genossenschaftswohnung": 14.462,
+        "andere_hauptmiete": 26.042,
+        "sonstige": 16.479
+      },
+      {
+        "label": "Kategorie D",
+        "insgesamt_in_1000": 25.051,
+        "hauseigentum": 4.337,
+        "wohnungseigentum": 2.055,
+        "gemeindewohnung": 2.287,
+        "genossenschaftswohnung": 4.818,
+        "andere_hauptmiete": 73.391,
+        "sonstige": 13.112
+      }
+    ],
+    "Haushaltsgröße": [
+      {
+        "label": "1 Person",
+        "insgesamt_in_1000": 1606.618,
+        "hauseigentum": 19.647,
+        "wohnungseigentum": 13.403,
+        "gemeindewohnung": 8.658,
+        "genossenschaftswohnung": 21.231,
+        "andere_hauptmiete": 24.353,
+        "sonstige": 12.709
+      },
+      {
+        "label": "2 Personen",
+        "insgesamt_in_1000": 1264.621,
+        "hauseigentum": 41.404,
+        "wohnungseigentum": 11.581,
+        "gemeindewohnung": 5.593,
+        "genossenschaftswohnung": 14.616,
+        "andere_hauptmiete": 17.262,
+        "sonstige": 9.545
+      },
+      {
+        "label": "3 Personen",
+        "insgesamt_in_1000": 583.676,
+        "hauseigentum": 47.039,
+        "wohnungseigentum": 10.447,
+        "gemeindewohnung": 5.24,
+        "genossenschaftswohnung": 14.152,
+        "andere_hauptmiete": 18.101,
+        "sonstige": 5.021
+      },
+      {
+        "label": "4 Personen",
+        "insgesamt_in_1000": 458.898,
+        "hauseigentum": 57.525,
+        "wohnungseigentum": 10.454,
+        "gemeindewohnung": 5.327,
+        "genossenschaftswohnung": 12.045,
+        "andere_hauptmiete": 11.666,
+        "sonstige": 2.983
+      },
+      {
+        "label": "5 und mehr Personen",
+        "insgesamt_in_1000": 244.66,
+        "hauseigentum": 52.71,
+        "wohnungseigentum": 6.205,
+        "gemeindewohnung": 7.799,
+        "genossenschaftswohnung": 12.592,
+        "andere_hauptmiete": 16.324,
+        "sonstige": 4.37
+      }
+    ],
+    "Familienhaushalte": [
+      {
+        "label": "Einfamilienhaushalte",
+        "insgesamt_in_1000": 2403.175,
+        "hauseigentum": 47.44,
+        "wohnungseigentum": 10.867,
+        "gemeindewohnung": 5.63,
+        "genossenschaftswohnung": 14.021,
+        "andere_hauptmiete": 15.28,
+        "sonstige": 6.762,
+        "unterkategorien": [
+          {
+            "label": "(Ehe-)Paar ohne Kind(-er)",
+            "insgesamt_in_1000": 1046.803,
+            "hauseigentum": 44.347,
+            "wohnungseigentum": 11.847,
+            "gemeindewohnung": 4.238,
+            "genossenschaftswohnung": 13.767,
+            "andere_hauptmiete": 15.852,
+            "sonstige": 9.949
+          },
+          {
+            "label": "(Ehe-)Paar mit Kind(-ern)",
+            "insgesamt_in_1000": 1077.259,
+            "hauseigentum": 53.399,
+            "wohnungseigentum": 10.491,
+            "gemeindewohnung": 5.455,
+            "genossenschaftswohnung": 13.175,
+            "andere_hauptmiete": 13.793,
+            "sonstige": 3.688
+          },
+          {
+            "label": "Vater mit Kind(-ern)",
+            "insgesamt_in_1000": 48.787,
+            "hauseigentum": 49.172,
+            "wohnungseigentum": 8.233,
+            "gemeindewohnung": 5.904,
+            "genossenschaftswohnung": 12.69,
+            "andere_hauptmiete": 16.935,
+            "sonstige": 7.066
+          },
+          {
+            "label": "Mutter mit Kind(-ern)",
+            "insgesamt_in_1000": 230.326,
+            "hauseigentum": 33.26,
+            "wohnungseigentum": 8.735,
+            "gemeindewohnung": 12.717,
+            "genossenschaftswohnung": 19.412,
+            "andere_hauptmiete": 19.281,
+            "sonstige": 6.595
+          }
+        ]
+      },
+      {
+        "label": "Mehrfamilienhaushalte",
+        "insgesamt_in_1000": 51.921,
+        "hauseigentum": 73.209,
+        "wohnungseigentum": 5.116,
+        "gemeindewohnung": 3.096,
+        "genossenschaftswohnung": 8.185,
+        "andere_hauptmiete": 5.302,
+        "sonstige": 5.093
+      }
+    ],
+    "Nichtfamilienhaushalte": [
+      {
+        "label": "Einpersonenhaushalte",
+        "insgesamt_in_1000": 1606.618,
+        "hauseigentum": 19.647,
+        "wohnungseigentum": 13.403,
+        "gemeindewohnung": 8.658,
+        "genossenschaftswohnung": 21.231,
+        "andere_hauptmiete": 24.353,
+        "sonstige": 12.709,
+        "unterkategorien": [
+          {
+            "label": "bis unter 30 Jahre",
+            "insgesamt_in_1000": 179.002,
+            "hauseigentum": 2.553,
+            "wohnungseigentum": 8.105,
+            "gemeindewohnung": 10.153,
+            "genossenschaftswohnung": 24.578,
+            "andere_hauptmiete": 43.62,
+            "sonstige": 10.992
+          },
+          {
+            "label": "30 bis unter 60 Jahre",
+            "insgesamt_in_1000": 653.294,
+            "hauseigentum": 17.157,
+            "wohnungseigentum": 13.458,
+            "gemeindewohnung": 8.313,
+            "genossenschaftswohnung": 22.654,
+            "andere_hauptmiete": 31.722,
+            "sonstige": 6.697
+          },
+          {
+            "label": "60 und mehr Jahre",
+            "insgesamt_in_1000": 774.322,
+            "hauseigentum": 25.699,
+            "wohnungseigentum": 14.581,
+            "gemeindewohnung": 8.603,
+            "genossenschaftswohnung": 19.256,
+            "andere_hauptmiete": 13.683,
+            "sonstige": 18.178
+          }
+        ]
+      },
+      {
+        "label": "Mehrpersonen-Nichtfamilienhaushalte",
+        "insgesamt_in_1000": 96.76,
+        "hauseigentum": 13.462,
+        "wohnungseigentum": 6.993,
+        "gemeindewohnung": 8.197,
+        "genossenschaftswohnung": 12.747,
+        "andere_hauptmiete": 49.051,
+        "sonstige": 9.551
+      }
+    ],
+    "Mietvertragsdauer1": [
+      {
+        "label": "bis unter 2 Jahre",
+        "insgesamt_in_1000": 456.613,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 5.279,
+        "genossenschaftswohnung": 21.13,
+        "andere_hauptmiete": 73.591,
+        "sonstige": 0.0
+      },
+      {
+        "label": "2 bis unter 5 Jahre",
+        "insgesamt_in_1000": 434.307,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 11.346,
+        "genossenschaftswohnung": 34.452,
+        "andere_hauptmiete": 54.202,
+        "sonstige": 0.0
+      },
+      {
+        "label": "5 bis unter 10 Jahre",
+        "insgesamt_in_1000": 257.663,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 16.776,
+        "genossenschaftswohnung": 53.524,
+        "andere_hauptmiete": 29.7,
+        "sonstige": 0.0
+      },
+      {
+        "label": "10 bis unter 20 Jahre",
+        "insgesamt_in_1000": 279.499,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 24.247,
+        "genossenschaftswohnung": 52.593,
+        "andere_hauptmiete": 23.16,
+        "sonstige": 0.0
+      },
+      {
+        "label": "20 bis unter 30 Jahre",
+        "insgesamt_in_1000": 160.863,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 28.293,
+        "genossenschaftswohnung": 49.15,
+        "andere_hauptmiete": 22.557,
+        "sonstige": 0.0
+      },
+      {
+        "label": "30 Jahre und länger",
+        "insgesamt_in_1000": 197.943,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 27.305,
+        "genossenschaftswohnung": 42.707,
+        "andere_hauptmiete": 29.989,
+        "sonstige": 0.0
+      }
+    ],
+    "Befristung des Mietvertrags2": [
+      {
+        "label": "befristet",
+        "insgesamt_in_1000": 443.631,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 2.157,
+        "genossenschaftswohnung": 7.585,
+        "andere_hauptmiete": 90.258,
+        "sonstige": 0.0
+      },
+      {
+        "label": "unbefristet",
+        "insgesamt_in_1000": 1343.604,
+        "hauseigentum": 0.0,
+        "wohnungseigentum": 0.0,
+        "gemeindewohnung": 20.42,
+        "genossenschaftswohnung": 49.194,
+        "andere_hauptmiete": 30.386,
+        "sonstige": 0.0
+      }
+    ]
+  }
+}

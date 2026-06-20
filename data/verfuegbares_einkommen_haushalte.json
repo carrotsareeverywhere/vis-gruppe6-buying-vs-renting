@@ -1,0 +1,246 @@
+{
+  "title": "Verfügbares Haushaltseinkommen in Österreich 2025 nach Haushaltstyp",
+  "unit": "Anzahl in 1 000; Einkommen in Euro pro Jahr (Perzentile und arithmetisches Mittel)",
+  "columns": [
+    "anzahl_haushalte_in_1000",
+    "einkommen_10_perzentil",
+    "einkommen_25_perzentil",
+    "einkommen_50_perzentil_median",
+    "einkommen_75_perzentil",
+    "einkommen_90_perzentil",
+    "einkommen_arithmetisches_mittel"
+  ],
+  "footnote": "Q: STATISTIK AUSTRIA, EU-SILC 2025. Erstellt am 29.04.2026 (Stand: Rev. 1 vom 12.05.2026). Erhebungsjahr 2025, Angaben zum Jahreseinkommen bezogen auf 2024. – Wurden in einer Gruppe weniger als 500 Haushalte befragt, dann ist der unterste und oberste Dezilwert (10 %, 90 %), bei weniger als 200 Haushalten auch der untere und obere Quartilswert (25 %, 75 %) in Klammern ausgewiesen. 1) Verfügbares Haushaltseinkommen pro Jahr. – 2) Haushalte mit Pension sind jene Haushalte, bei denen über 50 % des Einkommens aus Pensionen stammen.",
+  "gesamt": {
+    "label": "Insgesamt",
+    "anzahl_haushalte_in_1000": 4181.0,
+    "einkommen_10_perzentil": 20477.0,
+    "einkommen_25_perzentil": 31943.0,
+    "einkommen_50_perzentil_median": 51152.0,
+    "einkommen_75_perzentil": 78851.0,
+    "einkommen_90_perzentil": 108628.0,
+    "einkommen_arithmetisches_mittel": 60766.0
+  },
+  "kategorien": {
+    "Haushalte mit Pension": {
+      "summe": {
+        "label": "Zusammen",
+        "anzahl_haushalte_in_1000": 1123.0,
+        "einkommen_10_perzentil": 20476.0,
+        "einkommen_25_perzentil": 28982.0,
+        "einkommen_50_perzentil_median": 42913.0,
+        "einkommen_75_perzentil": 59881.0,
+        "einkommen_90_perzentil": 79800.0,
+        "einkommen_arithmetisches_mittel": 47729.0
+      },
+      "haushaltstypen": [
+        {
+          "label": "Alleinlebende Männer",
+          "anzahl_haushalte_in_1000": 176.0,
+          "einkommen_10_perzentil": 19028.0,
+          "einkommen_25_perzentil": 26204.0,
+          "einkommen_50_perzentil_median": 32063.0,
+          "einkommen_75_perzentil": 42242.0,
+          "einkommen_90_perzentil": 52311.0,
+          "einkommen_arithmetisches_mittel": 35809.0
+        },
+        {
+          "label": "Alleinlebende Frauen",
+          "anzahl_haushalte_in_1000": 371.0,
+          "einkommen_10_perzentil": 16980.0,
+          "einkommen_25_perzentil": 21118.0,
+          "einkommen_50_perzentil_median": 28578.0,
+          "einkommen_75_perzentil": 38061.0,
+          "einkommen_90_perzentil": 49231.0,
+          "einkommen_arithmetisches_mittel": 31077.0
+        },
+        {
+          "label": "Mehrpersonenhaushalt",
+          "anzahl_haushalte_in_1000": 576.0,
+          "einkommen_10_perzentil": 35178.0,
+          "einkommen_25_perzentil": 44776.0,
+          "einkommen_50_perzentil_median": 57167.0,
+          "einkommen_75_perzentil": 73335.0,
+          "einkommen_90_perzentil": 93105.0,
+          "einkommen_arithmetisches_mittel": 62094.0
+        }
+      ]
+    },
+    "Haushalte ohne Pension": {
+      "summe": {
+        "label": "Zusammen",
+        "anzahl_haushalte_in_1000": 3057.0,
+        "einkommen_10_perzentil": 20479.0,
+        "einkommen_25_perzentil": 33280.0,
+        "einkommen_50_perzentil_median": 57386.0,
+        "einkommen_75_perzentil": 85566.0,
+        "einkommen_90_perzentil": 116880.0,
+        "einkommen_arithmetisches_mittel": 65557.0
+      },
+      "haushaltstypen": [
+        {
+          "label": "Alleinlebende Männer",
+          "anzahl_haushalte_in_1000": 594.0,
+          "einkommen_10_perzentil": 12794.0,
+          "einkommen_25_perzentil": 21776.0,
+          "einkommen_50_perzentil_median": 33442.0,
+          "einkommen_75_perzentil": 45216.0,
+          "einkommen_90_perzentil": 64401.0,
+          "einkommen_arithmetisches_mittel": 39436.0
+        },
+        {
+          "label": "Alleinlebende Frauen",
+          "anzahl_haushalte_in_1000": 491.0,
+          "einkommen_10_perzentil": 12160.0,
+          "einkommen_25_perzentil": 21803.0,
+          "einkommen_50_perzentil_median": 30430.0,
+          "einkommen_75_perzentil": 40461.0,
+          "einkommen_90_perzentil": 53108.0,
+          "einkommen_arithmetisches_mittel": 32285.0
+        },
+        {
+          "label": "Mehrpersonenhaushalt ohne Kinder",
+          "anzahl_haushalte_in_1000": 888.0,
+          "einkommen_10_perzentil": 35729.0,
+          "einkommen_25_perzentil": 53399.0,
+          "einkommen_50_perzentil_median": 74231.0,
+          "einkommen_75_perzentil": 98995.0,
+          "einkommen_90_perzentil": 128499.0,
+          "einkommen_arithmetisches_mittel": 81550.0
+        }
+      ]
+    },
+    "Haushalte mit Kindern": {
+      "summe": {
+        "label": "Haushalte mit Kindern",
+        "anzahl_haushalte_in_1000": 1084.0,
+        "einkommen_10_perzentil": 35978.0,
+        "einkommen_25_perzentil": 54297.0,
+        "einkommen_50_perzentil_median": 75393.0,
+        "einkommen_75_perzentil": 98932.0,
+        "einkommen_90_perzentil": 129603.0,
+        "einkommen_arithmetisches_mittel": 81831.0
+      },
+      "haushaltstypen": [
+        {
+          "label": "Einelternhaushalt",
+          "anzahl_haushalte_in_1000": 108.0,
+          "einkommen_10_perzentil": 18552.0,
+          "einkommen_25_perzentil": 28351.0,
+          "einkommen_50_perzentil_median": 36067.0,
+          "einkommen_75_perzentil": 53299.0,
+          "einkommen_90_perzentil": 75675.0,
+          "einkommen_arithmetisches_mittel": 45812.0
+        },
+        {
+          "label": "Mehrpersonenhaushalt + 1 Kind",
+          "anzahl_haushalte_in_1000": 459.0,
+          "einkommen_10_perzentil": 41412.0,
+          "einkommen_25_perzentil": 59569.0,
+          "einkommen_50_perzentil_median": 77890.0,
+          "einkommen_75_perzentil": 101663.0,
+          "einkommen_90_perzentil": 131759.0,
+          "einkommen_arithmetisches_mittel": 84020.0
+        },
+        {
+          "label": "Mehrpersonenhaushalt + 2 Kinder",
+          "anzahl_haushalte_in_1000": 356.0,
+          "einkommen_10_perzentil": 45965.0,
+          "einkommen_25_perzentil": 61412.0,
+          "einkommen_50_perzentil_median": 79273.0,
+          "einkommen_75_perzentil": 106262.0,
+          "einkommen_90_perzentil": 139085.0,
+          "einkommen_arithmetisches_mittel": 90356.0
+        },
+        {
+          "label": "Mehrpersonenhaushalt + mind. 3 Kinder",
+          "anzahl_haushalte_in_1000": 161.0,
+          "einkommen_10_perzentil": 44079.0,
+          "einkommen_25_perzentil": 54072.0,
+          "einkommen_50_perzentil_median": 78402.0,
+          "einkommen_75_perzentil": 95692.0,
+          "einkommen_90_perzentil": 124964.0,
+          "einkommen_arithmetisches_mittel": 80927.0
+        }
+      ]
+    },
+    "Haushalt mit": {
+      "haushaltstypen": [
+        {
+          "label": "männlichem Hauptverdiener",
+          "anzahl_haushalte_in_1000": 2600.0,
+          "einkommen_10_perzentil": 24889.0,
+          "einkommen_25_perzentil": 38710.0,
+          "einkommen_50_perzentil_median": 60720.0,
+          "einkommen_75_perzentil": 86576.0,
+          "einkommen_90_perzentil": 117333.0,
+          "einkommen_arithmetisches_mittel": 68615.0
+        },
+        {
+          "label": "weiblicher Hauptverdienerin",
+          "anzahl_haushalte_in_1000": 1581.0,
+          "einkommen_10_perzentil": 17072.0,
+          "einkommen_25_perzentil": 25923.0,
+          "einkommen_50_perzentil_median": 37786.0,
+          "einkommen_75_perzentil": 60913.0,
+          "einkommen_90_perzentil": 89654.0,
+          "einkommen_arithmetisches_mittel": 47853.0
+        }
+      ]
+    },
+    "Haushaltsgröße": {
+      "haushaltstypen": [
+        {
+          "label": "1 Person",
+          "anzahl_haushalte_in_1000": 1632.0,
+          "einkommen_10_perzentil": 14919.0,
+          "einkommen_25_perzentil": 22099.0,
+          "einkommen_50_perzentil_median": 31158.0,
+          "einkommen_75_perzentil": 41892.0,
+          "einkommen_90_perzentil": 55540.0,
+          "einkommen_arithmetisches_mittel": 34994.0
+        },
+        {
+          "label": "2 Personen",
+          "anzahl_haushalte_in_1000": 1268.0,
+          "einkommen_10_perzentil": 31943.0,
+          "einkommen_25_perzentil": 44481.0,
+          "einkommen_50_perzentil_median": 60081.0,
+          "einkommen_75_perzentil": 79522.0,
+          "einkommen_90_perzentil": 101883.0,
+          "einkommen_arithmetisches_mittel": 65835.0
+        },
+        {
+          "label": "3 Personen",
+          "anzahl_haushalte_in_1000": 580.0,
+          "einkommen_10_perzentil": 38145.0,
+          "einkommen_25_perzentil": 57357.0,
+          "einkommen_50_perzentil_median": 75314.0,
+          "einkommen_75_perzentil": 97608.0,
+          "einkommen_90_perzentil": 126253.0,
+          "einkommen_arithmetisches_mittel": 81671.0
+        },
+        {
+          "label": "4 Personen",
+          "anzahl_haushalte_in_1000": 456.0,
+          "einkommen_10_perzentil": 48689.0,
+          "einkommen_25_perzentil": 65284.0,
+          "einkommen_50_perzentil_median": 84836.0,
+          "einkommen_75_perzentil": 114417.0,
+          "einkommen_90_perzentil": 146423.0,
+          "einkommen_arithmetisches_mittel": 96172.0
+        },
+        {
+          "label": "5 und mehr Personen",
+          "anzahl_haushalte_in_1000": 244.0,
+          "einkommen_10_perzentil": 45965.0,
+          "einkommen_25_perzentil": 62167.0,
+          "einkommen_50_perzentil_median": 84144.0,
+          "einkommen_75_perzentil": 114667.0,
+          "einkommen_90_perzentil": 146213.0,
+          "einkommen_arithmetisches_mittel": 90885.0
+        }
+      ]
+    }
+  }
+}
