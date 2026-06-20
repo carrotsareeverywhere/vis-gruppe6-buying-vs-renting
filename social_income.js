@@ -88,7 +88,7 @@
 
         // Defer chart creation one frame so flex layout settles with results in the DOM
         requestAnimationFrame(() => {
-            const margin = {top: 22, right: 70, bottom: 44, left: 148};
+            const margin = {top: 22, right: 70, bottom: 44, left: 172};
             const W = container.clientWidth;
             const H = Math.max(container.clientHeight, 160);
             const cW = W - margin.left - margin.right;
