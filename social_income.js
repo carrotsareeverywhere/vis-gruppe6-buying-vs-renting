@@ -34,8 +34,7 @@
     // Converts one row from verfuegbares_einkommen_haushalte.json into the chart group format
     function rowToIncomeGroup(name, color, row) {
         return {
-            name,
-            color,
+            name, color,
             pts: [
                 [row.einkommen_10_perzentil, 0.10],
                 [row.einkommen_25_perzentil, 0.25],
@@ -64,13 +63,17 @@
         const container = document.querySelector(selector);
         if (!container) return;
 
-        // Pre-populate results so the input section reaches its final height before we measure
         const inputEl = document.getElementById('loan-input');
         const resultsEl = document.getElementById('loan-results');
         if (inputEl && !inputEl.value) inputEl.value = 300000;
-        const defaultLoan = inputEl ? +inputEl.value : 300000;
-        if (resultsEl && defaultLoan > 0) {
-            const minInc = annualMortgagePayment(defaultLoan, 30) / 0.40;
+        let currentLoan = inputEl ? +inputEl.value : 300000;
+
+        function renderResults(minInc) {
+            if (!resultsEl) return;
+            if (!minInc || minInc <= 0) {
+                resultsEl.innerHTML = '';
+                return;
+            }
             resultsEl.innerHTML = incomeGroups.map(grp => {
                 const pctCan = Math.round((1 - cdfAt(grp.pts, minInc)) * 100);
                 return `<span class="afford-row">
@@ -81,13 +84,20 @@
             }).join('');
         }
 
-        // Expose _update immediately so oninput works before the rAF fires
+        // Pre-populate results once so the input section reaches its final height before the first draw
+        if (currentLoan > 0) renderResults(annualMortgagePayment(currentLoan, 30) / 0.40);
+
+        // Stable public handle — survives redraws, always tracks currentLoan
         container._update = loanAmount => {
+            currentLoan = loanAmount;
             if (container._realUpdate) container._realUpdate(loanAmount);
         };
 
-        // Defer chart creation one frame so flex layout settles with results in the DOM
-        requestAnimationFrame(() => {
+        let debounceTimer;
+
+        function draw() {
+            d3.select(selector).selectAll('svg').remove();
+
             const margin = {top: 22, right: 70, bottom: 44, left: 172};
             const W = container.clientWidth;
             const H = Math.max(container.clientHeight, 160);
@@ -122,7 +132,7 @@
                 .selectAll('text')
                 .attr('font-size', '10px').attr('fill', '#444').attr('font-weight', '600');
 
-            // X-axis label + legend
+            // X-axis label
             g.append('text').attr('text-anchor', 'middle')
                 .attr('x', cW / 2).attr('y', cH + 38)
                 .attr('font-size', '10px').attr('fill', '#666')
@@ -136,7 +146,6 @@
                 const p10 = grp.pts[0][0], p25 = grp.pts[1][0],
                     p50 = grp.pts[2][0], p75 = grp.pts[3][0], p90 = grp.pts[4][0];
 
-                // Whisker line p10 → p90
                 const capH = bH * 0.28;
                 g.append('line')
                     .attr('x1', xScale(p10)).attr('x2', xScale(p90))
@@ -149,7 +158,6 @@
                         .attr('stroke', grp.color).attr('stroke-width', 1.5).attr('opacity', 0.7);
                 });
 
-                // IQR box p25 → p75
                 const boxH = bH * 0.55;
                 g.append('rect')
                     .attr('x', xScale(p25)).attr('y', mid - boxH / 2)
@@ -157,14 +165,13 @@
                     .attr('fill', grp.color).attr('opacity', 0.45)
                     .attr('rx', 2).attr('stroke', grp.color).attr('stroke-width', 1);
 
-                // Median tick
                 g.append('line')
                     .attr('x1', xScale(p50)).attr('x2', xScale(p50))
                     .attr('y1', mid - boxH / 2).attr('y2', mid + boxH / 2)
                     .attr('stroke', '#fff').attr('stroke-width', 2);
             });
 
-            // FMA threshold line + label (updated on loan input)
+            // FMA threshold line + label
             const threshLine = g.append('line')
                 .attr('y1', 0).attr('y2', cH)
                 .attr('stroke', '#222').attr('stroke-width', 1.5)
@@ -174,32 +181,20 @@
                 .attr('text-anchor', 'middle').attr('font-size', '9px').attr('fill', '#222')
                 .style('opacity', 0);
 
-            const resultsElInner = document.getElementById('loan-results');
-
             function update(loanAmount) {
                 if (!loanAmount || loanAmount <= 0) {
                     threshLine.style('opacity', 0);
                     threshLabel.style('opacity', 0);
-                    if (resultsElInner) resultsElInner.innerHTML = '';
+                    renderResults(0);
                     return;
                 }
                 const minInc = annualMortgagePayment(loanAmount, 30) / 0.40;
                 const xPos = xScale(minInc);
                 threshLine.attr('x1', xPos).attr('x2', xPos).style('opacity', 1);
-                threshLabel
-                    .attr('x', xPos).attr('y', -6)
+                threshLabel.attr('x', xPos).attr('y', -6)
                     .text(`€${Math.round(minInc / 100) * 100}/yr`)
                     .style('opacity', 1);
-                if (resultsElInner) {
-                    resultsElInner.innerHTML = incomeGroups.map(grp => {
-                        const pctCan = Math.round((1 - cdfAt(grp.pts, minInc)) * 100);
-                        return `<span class="afford-row">
-                            <span class="afford-swatch" style="background:${grp.color}"></span>
-                            <span class="afford-name">${grp.name}:</span>
-                            <span class="afford-pct" style="color:${grp.color}">~${pctCan}%</span>
-                        </span>`;
-                    }).join('');
-                }
+                renderResults(minInc);
             }
 
             // Hairline — appended after threshold line so it renders on top
@@ -237,13 +232,17 @@
                     hairLabelBg.style('opacity', 0);
                 });
 
-            update(defaultLoan);
+            update(currentLoan);
             container._realUpdate = update;
-            container._update = update;
+        }
+
+        const ro = new ResizeObserver(() => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(draw, 150);
         });
+        ro.observe(container);
     }
 
-    // Public API
     window.buildIncomeGroups = buildIncomeGroups;
     window.renderIncomeChart = renderIncomeChart;
 
