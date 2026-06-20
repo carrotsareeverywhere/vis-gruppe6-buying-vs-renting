@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy or Rent — Austria</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css" />W
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -30,7 +30,7 @@
         <a href="#page-dashboard" class="nav-item">Map &amp; Calculator</a>
         <a href="#page-insights" class="nav-item">Analysis</a>
         <a href="#page-social" class="nav-item">Social Housing Tenure</a>
-    </div>s
+    </div>
 </nav>
 
 <div class="scroll-snap-container">
@@ -338,6 +338,71 @@
 
     <section id="page-5" class="snap-section"></section>
 
+    <section id="page-social" class="snap-section reveal-on-scroll">
+        <div class="social-plots-container">
+
+            <!-- LEFT: Housing Tenure Sunburst -->
+            <div class="social-plot-card">
+                <div class="social-card-header">
+                    <h2>Housing Tenure by Household Type</h2>
+                    <p>How different household types are distributed across ownership and rental arrangements in Austria (EU-SILC 2023).</p>
+                    <div class="group-legend">
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-family')">
+                            <span class="gdot" style="background:#c62828"></span>Single-family
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Multi-family')">
+                            <span class="gdot" style="background:#2e7d32"></span>Multi-family
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-person')">
+                            <span class="gdot" style="background:#1565c0"></span>Single-person
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Multi-person (Non-fam)')">
+                            <span class="gdot" style="background:#e65100"></span>Multi-person (Non-fam)
+                        </span>
+                    </div>
+                    <p class="chart-howto">Click a coloured segment to zoom into that household group - Click the segment or centre again to reset.</p>
+                </div>
+                <div class="sunburst-container" id="sunburst-age-group"></div>
+                <div class="tenure-legend">
+                    <span class="tenure-legend-label">Tenure types (outer ring):</span>
+                    <span class="tenure-legend-item">Owned House</span>
+                    <span class="tenure-legend-item">Owned Flat</span>
+                    <span class="tenure-legend-item">Municipal Housing</span>
+                    <span class="tenure-legend-item">Co-operative</span>
+                    <span class="tenure-legend-item">Private Rental</span>
+                    <span class="tenure-legend-item">Other</span>
+                </div>
+            </div>
+
+            <!-- RIGHT: Income Affordability Boxplot -->
+            <div class="social-plot-card">
+                <div class="social-card-header">
+                    <h2>Income Affordability by Household Type</h2>
+                    <p>What share of households can afford a mortgage under the FMA 40 % debt-service rule?</p>
+                    <p class="chart-howto">Hover over the chart to read income levels - Enter a loan amount below to see the minimum required annual income and the share of households that qualify.</p>
+                </div>
+                <div class="income-chart-container" id="income-cdf-chart"></div>
+                <div class="loan-input-section">
+                    <div class="loan-input-row">
+                        <label for="loan-input">Loan amount <span class="loan-note">(FMA 40 % rule - 3.5 % - 30 yr)</span></label>
+                        <div class="loan-field">
+                            <span class="loan-eur">€</span>
+                            <input type="number" id="loan-input" value="300000" min="0" step="10000"
+                                   oninput="var c=document.querySelector('#income-cdf-chart');c&&c._update&&c._update(+this.value)">
+                        </div>
+                    </div>
+                    <div class="loan-results" id="loan-results"></div>
+                </div>
+                <div class="income-footnote">
+                    Source: STATISTIK AUSTRIA, EU-SILC 2025. Annual net household income percentiles (P10–P90).
+                    The dashed line shows the minimum annual income required to meet the FMA guideline
+                    (annual mortgage payment less than 40 % of net income, 3.5 % over 30 years).
+                </div>
+            </div>
+
+        </div>
+    </section>
+
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -380,7 +445,10 @@
         link.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.getElementById(this.getAttribute('href').substring(1));
-            if (target) window.scrollTo({ top: target.offsetTop - 56, behavior: 'smooth' });
+            if (target) {
+                target.classList.add('appeared');
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
     });
 
@@ -396,6 +464,18 @@
             l.classList.toggle('active', l.getAttribute('href') === `#${active}`);
         });
     });
+
+    // Initialise social charts on first intersection
+    const socialSection = document.getElementById('page-social');
+    if (socialSection) {
+        const socialObserver = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                if (typeof window.initSocialPlots === 'function') window.initSocialPlots();
+                socialObserver.disconnect();
+            }
+        }, { threshold: 0.1 });
+        socialObserver.observe(socialSection);
+    }
 
     // Unlock the breakdown overlay once the chart-section-wrapper gets the .visible class
     // (added by interactive_map.js when a region is clicked and calculateBreakEven runs)

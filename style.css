@@ -207,6 +207,7 @@ body {
     position: relative;
     width: 100%;
     min-height: calc(100vh - var(--nav-h));
+    scroll-margin-top: var(--nav-h);
 }
 
 /* Reveal animation */
