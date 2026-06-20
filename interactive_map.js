@@ -86,12 +86,13 @@ function toggleColourBlindMode() {
     }
     loadMapData(currentLayerType);
     updateYearlyDistributionCharts();
+    updateLegendLabels(currentColorMetric);
 }
 
 async function loadGeoJsonFiles() {
     try {
-        const statesResponse = await fetch('laender_95_geo_mit_Preisen.json');
-        const districtsResponse = await fetch('bezirke_95_geo_mit_Kaufpreis_2025_v2.json');
+        const statesResponse = await fetch('data/laender_95_geo_mit_Preisen.json');
+        const districtsResponse = await fetch('data/bezirke_95_geo_mit_Kaufpreis_2025_v2.json');
 
         if (!statesResponse.ok || !districtsResponse.ok) {
             throw new Error(`HTTP error! Status: ${statesResponse.status} / ${districtsResponse.status}`);
@@ -324,23 +325,32 @@ function updateLegendLabels(metric) {
     const thresholds = (metric === 'Kaufpreis') ? kaufpreisThresholds : mieteThresholds;
 
     for (let i = 0; i < steps; i++) {
-        const labelElement = document.getElementById(`legend-label-${steps - i}`);
+        const itemNumber = steps - i;
+        const labelElement = document.getElementById(`legend-label-${itemNumber}`);
+        const colorElement = document.getElementById(`legend-color-${itemNumber}`);
+
+        // Dynamically assign the palette colors to the legend boxes
+        if (colorElement) {
+            // mapping colorPalette in matching order (from index 0 to 10)
+            colorElement.style.backgroundColor = colorPalette[itemNumber - 1];
+        }
+
         if (!labelElement) continue;
 
         let labelText = "";
 
         if (i === 0) {
-            // First bucket (Cheapest)
-            let upper = thresholds[0];
-            labelText = `< ${metric === 'miete' ? upper.toFixed(1) : Math.round(upper)} €`;
-        } else if (i === steps - 1) {
-            // Last bucket (Most Expensive)
+            // First bucket in visual loop order (Most Expensive)
             let lower = thresholds[thresholds.length - 1];
             labelText = `> ${metric === 'miete' ? lower.toFixed(1) : Math.round(lower)} €`;
+        } else if (i === steps - 1) {
+            // Last bucket in visual loop order (Cheapest)
+            let upper = thresholds[0];
+            labelText = `< ${metric === 'miete' ? upper.toFixed(1) : Math.round(upper)} €`;
         } else {
-            // Intermediate ranges
-            let lower = thresholds[i - 1];
-            let upper = thresholds[i];
+            let thresholdIndex = thresholds.length - i;
+            let lower = thresholds[thresholdIndex - 1];
+            let upper = thresholds[thresholdIndex];
 
             if (metric === 'miete') {
                 labelText = `${lower.toFixed(1)} € - ${upper.toFixed(1)} €`;
