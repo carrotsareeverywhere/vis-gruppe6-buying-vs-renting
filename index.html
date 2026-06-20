@@ -29,7 +29,8 @@
         <a href="#intro-breakeven" class="nav-item active">Introduction</a>
         <a href="#page-dashboard" class="nav-item">Map &amp; Calculator</a>
         <a href="#page-insights" class="nav-item">Analysis</a>
-    </div>
+        <a href="#page-social" class="nav-item">Social Housing Tenure</a>
+    </div>s
 </nav>
 
 <div class="scroll-snap-container">
@@ -100,15 +101,20 @@
                             <div class="control-row">
                                 <span class="control-label">Layer:</span>
                                 <div class="btn-group">
-                                    <button id="btn-states" class="active" onclick="switchLayer('states')">Federal States</button>
+                                    <button id="btn-states" class="active" onclick="switchLayer('states')">Federal
+                                        States
+                                    </button>
                                     <button id="btn-districts" onclick="switchLayer('districts')">Districts</button>
                                 </div>
                             </div>
                             <div class="control-row">
                                 <span class="control-label">Color:</span>
                                 <div class="btn-group">
-                                    <button id="btn-color-kaufpreis" class="active" onclick="switchColorMetric('Kaufpreis')">Purchase Price</button>
-                                    <button id="btn-color-miete" onclick="switchColorMetric('miete')">Rent Price</button>
+                                    <button id="btn-color-kaufpreis" class="active"
+                                            onclick="switchColorMetric('Kaufpreis')">Purchase Price
+                                    </button>
+                                    <button id="btn-color-miete" onclick="switchColorMetric('miete')">Rent Price
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -224,10 +230,12 @@
                                 <input type="checkbox" id="chk-line-cum-buy" checked onchange="toggleChartLineVisibility()"> User Input Purchase
                             </label>
                             <label class="toggle-container text-green">
-                                <input type="checkbox" id="chk-line-renter" checked onchange="toggleChartLineVisibility()"> Avg State/District Rent
+                                <input type="checkbox" id="chk-line-renter" checked
+                                       onchange="toggleChartLineVisibility()"> Avg State/District Rent
                             </label>
                             <label class="toggle-container text-blue">
-                                <input type="checkbox" id="chk-line-owner" checked onchange="toggleChartLineVisibility()"> Avg State/District Purchase
+                                <input type="checkbox" id="chk-line-owner" checked
+                                       onchange="toggleChartLineVisibility()"> Avg State/District Purchase
                             </label>
                         </div>
                         <div class="chart-canvas-container">
@@ -334,7 +342,13 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="interactive_map.js"></script>
+<script src="social_sunburst.js"></script>
+<script src="social_income.js"></script>
+<script src="social_plot.js"></script>
+
+<div id="sunburst-tooltip"></div>
 
 <!-- Detail Modal (unchanged IDs for JS compatibility) -->
 <div id="detail-modal-overlay" class="modal-overlay" onclick="closeDetailModal()">
@@ -363,7 +377,7 @@
 
     // Smooth Nav Scroll
     document.querySelectorAll('.nav-item').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.getElementById(this.getAttribute('href').substring(1));
             if (target) window.scrollTo({ top: target.offsetTop - 56, behavior: 'smooth' });
