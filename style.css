@@ -305,7 +305,7 @@ body {
     font-size: clamp(1rem, 1.4vw, 1.15rem);
     line-height: 1.85;
     color: var(--stone);
-    max-width: 600px;
+    max-width: 100%;
 }
 
 /* Intro cards */
@@ -409,19 +409,74 @@ body {
 #page-dashboard {
     position: relative;
     width: 100%;
-    height: calc(100vh - var(--nav-h)) !important;
-    min-height: calc(100vh - var(--nav-h)) !important;
-    overflow: hidden;
+    min-height: calc(100vh - var(--nav-h));
+    height: auto !important; /* Overrides rigid full-viewport restriction to allow natural scrolling */
+    overflow: visible !important;
     background: var(--ghost);
+    padding: 3rem 24px 2rem; /* Adds generous breathing room at the top */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; /* Creates clean space between the heading and the interactive map block */
+}
+
+.dashboard-intro-header {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.dashboard-intro-header h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.dashboard-intro-header h2 em {
+    font-style: italic;
+    color: var(--red);
+}
+
+#page-dashboard .intro-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Material Icons adjustment inside the dashboard story cards */
+#page-dashboard .story-card .card-icon {
+    color: var(--red);
+    margin-bottom: 0.5rem;
+}
+
+#page-dashboard .story-card p {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+}
+
+#page-dashboard .story-card p .material-symbols-outlined {
+    font-size: 1.1rem;
+    color: var(--red);
+    margin-top: 2px;
+    flex-shrink: 0;
 }
 
 #main-viewport-container {
     display: flex;
     flex-direction: row;
-    height: 100%;
+    height: calc(100vh - var(--nav-h) - 40px); /* Gives the app a stable desktop layout size */
+    margin: 0 auto;
     width: 100%;
     overflow: hidden;
-    padding: 12px;
+    padding: 0;
     gap: 12px;
 }
 

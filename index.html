@@ -36,51 +36,30 @@
 </nav>
 
 <div class="scroll-snap-container">
-
     <section id="intro-breakeven" class="snap-section story-section">
-
         <!-- Austrian flag diagonal accent stripe -->
         <div class="hero-stripe-accent" aria-hidden="true"></div>
-
         <div id="intro-breakeven-container">
             <div id="intro-sidebar">
 
                 <div class="story-header">
                     <span class="story-eyebrow">Austria · Housing Market Analysis</span>
                     <h1>
-                        When does <em>buying</em><br>
-                        actually pay off?
+                        Buying vs Renting <br>
+                        An Information Visualization Project by <em>Group 6</em>
                     </h1>
                     <p class="story-intro">
-                        Explore regional property prices across Austria and compare the
-                        long-term financial impact of renting versus buying
-                        over a 30-year period.
+                        <br>
+                        Buying a home is one of the biggest financial decisions most people will make in their lives. For many young adults in Austria, however, this decision has become increasingly difficult due to rising property prices, changing interest rates, and different income levels.
+                        While there are online mortgage calculators available, they often assume that users already know how much they can borrow, where they want to buy a property, or even whether they would qualify for a loan in the first place.
+                        <br><br>
+                        Our project aims to make this process easier by creating an interactive website that helps users better understand their financial situation when it comes to buying a home in Austria.
+                        Using average income data for different social demographics together with Austrian housing and property data, the website allows users to explore where buying or renting is the more financially realistic option. It also gives an estimate of whether they would likely qualify for a bank loan to finance a property.
+                        <br><br>
+                        The website is not meant to provide financial advice, but rather to help users learn more about the factors that influence home ownership.
+                        Through interactive visualizations and real-world data, users can explore how income, housing costs, affordability, and long-term wealth development are connected and how different financial situations can affect the decision to buy or rent.
                     </p>
                 </div>
-
-                <div class="intro-columns">
-
-                    <div class="story-card">
-                        <div class="card-icon"><span class="material-symbols-outlined">bar_chart</span></div>
-                        <strong>What does this calculator do?</strong>
-                        <br>
-                        <br>
-                        <p>Buying a home is one of the largest financial decisions a household makes. This tool compares the financial consequences of buying and renting — objectively, without lifestyle preferences.</p>
-                        <p>Using regional purchase and rental prices from Austrian federal states and districts, it estimates how your wealth develops over the next 30 years.</p>
-                    </div>
-
-                    <div class="story-card">
-                        <div class="card-icon"><span class="material-symbols-outlined">map</span></div>
-                        <strong>How to use it</strong>
-                        <br>
-                        <br>
-                        <p><span class="material-symbols-outlined">pin_drop</span> Select the <b>Federal States</b> or <b>Districts</b> layer and click a region on the map.</p>
-                        <p><span class="material-symbols-outlined">house</span> Review or adjust your household details. Property prices and rent are automatically filled from regional data.</p>
-                        <p><span class="material-symbols-outlined">trending_up</span> Run the calculation and compare renting vs. buying over time. Find your personal break-even point.</p>
-                    </div>
-
-                </div>
-
                 <a href="#page-dashboard" class="story-scroll-cta">
                     <span>Explore the Map &amp; Calculator</span>
                     <svg class="scroll-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -93,6 +72,31 @@
     </section>
 
     <section id="page-dashboard" class="snap-section reveal-on-scroll">
+        <div class="dashboard-intro-header">
+            <h2>
+                Interactive Map &amp; Break-even Calculator <br>
+                When does <em>buying</em> actually pay off?
+            </h2>
+        </div>
+        <div class="intro-columns">
+            <div class="story-card">
+                <div class="card-icon"><span class="material-symbols-outlined">bar_chart</span></div>
+                <strong>What does this calculator do?</strong>
+                <br>
+                <br>
+                <p>Buying a home is one of the largest financial decisions a household makes. This tool compares the financial consequences of buying and renting — objectively, without lifestyle preferences.</p>
+                <p>Using regional purchase and rental prices from Austrian federal states and districts, it estimates how your wealth develops over the next 30 years, based on your personal inputs and regional averages.</p>
+            </div>
+            <div class="story-card">
+                <div class="card-icon"><span class="material-symbols-outlined">map</span></div>
+                <strong>How to use it</strong>
+                <br>
+                <br>
+                <p><span class="material-symbols-outlined">pin_drop</span> Select the Federal States or Districts layer and click a region on the map.</p>
+                <p><span class="material-symbols-outlined">house</span> Review or adjust your household details. <br> Property prices and rent are automatically filled from regional data.</p>
+                <p><span class="material-symbols-outlined">trending_up</span> Run the calculation and compare renting vs. buying over time. <br>Find your personal break-even point.</p>
+            </div>
+        </div>
         <div id="main-viewport-container">
             <div id="app-wrapper">
 
@@ -250,14 +254,19 @@
             </div>
         </div>
     </section>
-
+    <br>
+    <br>
+    <div class="dashboard-intro-header">
+        <h2>
+            Let's compare <em>the Wealth development</em> in detail! <br>
+        </h2>
+    </div>
+    <br>
+    <br>
     <section id="page-insights" class="snap-section reveal-on-scroll">
         <div class="insights-container">
-
             <div class="insights-main-column">
-
                 <div id="allocation-breakdown-wrapper">
-
                     <!-- Lock overlay: hidden once user clicks a map region -->
                     <div id="breakdown-lock-overlay">
                         <div class="lock-overlay-icon"><span class="material-symbols-outlined">vpn_lock</span></div>

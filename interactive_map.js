@@ -142,10 +142,18 @@ function calculateQuantileThresholds(geoJSONData) {
     // Find the exact boundaries for 11 equal-sized buckets
     for (let i = 1; i < steps; i++) {
         let percentileIdx = Math.floor((i / steps) * kaufpreisArray.length);
-        kaufpreisThresholds.push(kaufpreisArray[percentileIdx]);
+        let rawKaufpreis = kaufpreisArray[percentileIdx];
+
+        // Round Kaufpreis to the nearest 100
+        let roundedKaufpreis = Math.round(rawKaufpreis / 100) * 100;
+        kaufpreisThresholds.push(roundedKaufpreis);
 
         let mietePercentileIdx = Math.floor((i / steps) * mieteArray.length);
-        mieteThresholds.push(mieteArray[mietePercentileIdx]);
+        let rawMiete = mieteArray[mietePercentileIdx];
+
+        // Round Miete to the nearest 0.50 € for clean, round display steps
+        let roundedMiete = Math.round(rawMiete * 2) / 2;
+        mieteThresholds.push(roundedMiete);
     }
 }
 
