@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy or Rent — Austria</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet"  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<nav id="site-navigation">
+    <div class="nav-brand">
+        <span class="nav-flag">
+            <span class="flag-stripe flag-red"></span>
+            <span class="flag-stripe flag-white"></span>
+            <span class="flag-stripe flag-red"></span>
+        </span>
+        Buy vs. Rent
+    </div>
+    <label class="cb-toggle" title="Toggle Colour Blind Mode">
+        <input type="checkbox" id="cb-mode-toggle" onchange="toggleColourBlindMode()">
+        <span class="cb-toggle-track">
+            <span class="cb-toggle-thumb"></span>
+        </span>
+        <span class="cb-toggle-label">Colour Blind Mode</span>
+    </label>
+    <div class="nav-links">
+        <a href="#intro-breakeven" class="nav-item active">Introduction</a>
+        <a href="#page-dashboard" class="nav-item">Map &amp; Calculator</a>
+        <a href="#page-insights" class="nav-item">Analysis</a>
+        <a href="#page-barchart" class="nav-item">Housing Costs</a>
+        <a href="#page-social" class="nav-item">Social Housing Tenure</a>
+        <a href="#page-ending" class="nav-item">Conclusion</a>
+    </div>
+</nav>
+
+<div class="scroll-snap-container">
+    <section id="intro-breakeven" class="snap-section story-section">
+        <!-- Austrian flag diagonal accent stripe -->
+        <div class="hero-stripe-accent" aria-hidden="true"></div>
+        <div id="intro-breakeven-container">
+            <div id="intro-sidebar">
+                <div class="story-header">
+                    <span class="story-eyebrow">Austria · Housing Market Analysis</span>
+                    <h1>
+                        Buying vs Renting <br>
+                        An Information Visualization Project by <em>Group 6</em>
+                    </h1>
+                    <p class="story-intro">
+                        <br>
+                        Buying a home is one of the biggest financial decisions most people will make in their lives. For many young adults in Austria, however, this decision has become increasingly difficult due to rising property prices, changing interest rates, and different income levels.
+                        While there are online mortgage calculators available, they often assume that users already know how much they can borrow, where they want to buy a property, or even whether they would qualify for a loan in the first place.
+                        <br><br>
+                        Our project aims to make this process easier by creating an interactive website that helps users better understand their financial situation when it comes to buying a home in Austria.
+                        Using average income data for different social demographics together with Austrian housing and property data, the website allows users to explore where buying or renting is the more financially realistic option. It also gives an estimate of whether they would likely qualify for a bank loan to finance a property.
+                        <br><br>
+                        The website is not meant to provide financial advice, but rather to help users learn more about the factors that influence home ownership.
+                        Through interactive visualizations and real-world data, users can explore how income, housing costs, affordability, and long-term wealth development are connected and how different financial situations can affect the decision to buy or rent.
+                    </p>
+                </div>
+                <a href="#page-dashboard" class="story-scroll-cta">
+                    <span>Explore the Map &amp; Calculator</span>
+                    <svg class="scroll-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="page-dashboard" class="snap-section reveal-on-scroll">
+        <div class="dashboard-intro-header">
+            <h2>
+                Interactive Map &amp; Break-even Calculator <br>
+                When does <em>buying</em> actually pay off?
+            </h2>
+        </div>
+        <div class="intro-columns">
+            <div class="story-card">
+                <div class="card-icon"><span class="material-symbols-outlined">bar_chart</span></div>
+                <strong>What does this calculator do?</strong>
+                <br>
+                <br>
+                <p>Buying a home is one of the largest financial decisions a household makes. This tool compares the financial consequences of buying and renting — objectively, without lifestyle preferences.</p>
+                <p>Using regional purchase and rental prices from Austrian federal states and districts, it estimates how your wealth develops over the next 30 years, based on your personal inputs and regional averages.</p>
+            </div>
+            <div class="story-card">
+                <div class="card-icon"><span class="material-symbols-outlined">map</span></div>
+                <strong>How to use it</strong>
+                <br>
+                <br>
+                <p><span class="material-symbols-outlined">pin_drop</span> Select the Federal States or Districts layer and click a region on the map.</p>
+                <p><span class="material-symbols-outlined">house</span> Review or adjust your household details. <br> Property prices and rent are automatically filled from regional data.</p>
+                <p><span class="material-symbols-outlined">trending_up</span> Run the calculation and compare renting vs. buying over time. <br>Find your personal break-even point.</p>
+            </div>
+        </div>
+        <div id="main-viewport-container">
+            <div id="app-wrapper">
+
+                <!-- Left: Map + Inputs -->
+                <div id="map-section-wrapper">
+                    <div id="map-container">
+                        <div id="controls">
+                            <div class="control-row">
+                                <span class="control-label">Layer:</span>
+                                <div class="btn-group">
+                                    <button id="btn-states" class="active" onclick="switchLayer('states')">Federal
+                                        States
+                                    </button>
+                                    <button id="btn-districts" onclick="switchLayer('districts')">Districts</button>
+                                </div>
+                            </div>
+                            <div class="control-row">
+                                <span class="control-label">Color:</span>
+                                <div class="btn-group">
+                                    <button id="btn-color-kaufpreis" class="active"
+                                            onclick="switchColorMetric('Kaufpreis')">Purchase Price
+                                    </button>
+                                    <button id="btn-color-miete" onclick="switchColorMetric('miete')">Rent Price
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="map">
+                            <div id="map-legend">
+                                <div class="legend-item"><span class="legend-color" id="legend-color-1"></span><span class="legend-text" id="legend-label-1">Label 1</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-2"></span><span class="legend-text" id="legend-label-2">Label 2</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-3"></span><span class="legend-text" id="legend-label-3">Label 3</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-4"></span><span class="legend-text" id="legend-label-4">Label 4</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-5"></span><span class="legend-text" id="legend-label-5">Label 5</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-6"></span><span class="legend-text" id="legend-label-6">Label 6</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-7"></span><span class="legend-text" id="legend-label-7">Label 7</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-8"></span><span class="legend-text" id="legend-label-8">Label 8</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-9"></span><span class="legend-text" id="legend-label-9">Label 9</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-10"></span><span class="legend-text" id="legend-label-10">Label 10</span></div>
+                                <div class="legend-item"><span class="legend-color" id="legend-color-11"></span><span class="legend-text" id="legend-label-11">Label 11</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Inputs -->
+                    <div id="calculator-inputs-container">
+                        <div class="inputs-table-grid">
+                            <div class="table-header">(1) Personal Info</div>
+                            <div class="table-header">(2) Purchase Info</div>
+                            <div class="table-header">(3) Rental Info</div>
+
+                            <div class="table-cell">
+                                <label for="param-income">Household Monthly Net Income (€)</label>
+                                <input type="number" id="param-income" value="3700">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-buy-size">Desired Property Size (m²)</label>
+                                <input type="number" id="param-buy-size" value="95">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-rent-size">Desired Property Size (m²)</label>
+                                <input type="number" id="param-rent-size" value="70">
+                            </div>
+
+                            <div class="table-cell">
+                                <label for="param-capital">Household Equity Capital (€)</label>
+                                <input type="number" id="param-capital" value="25000">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-price-m2">Price per m² (€)</label>
+                                <input type="number" id="param-price-m2" placeholder="Auto-loads from map" disabled>
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-rent">Monthly Rent (€)</label>
+                                <input type="number" id="param-rent" value="1200" disabled>
+                            </div>
+
+                            <div class="table-cell">
+                                <label for="param-monthly-expenses">Monthly Living Expenses <small>(excluding housing costs, €)</small></label>
+                                <input type="number" id="param-monthly-expenses" value="1100">
+                            </div>
+                            <div class="table-cell">
+                                <div class="label-container">
+                                    <label for="param-loan-amount">Loan Principal Amount (€)</label>
+                                    <span class="loan-toggle-label">Manual: <input type="checkbox" id="toggle-loan-check"></span>
+                                </div>
+                                <input type="number" min="0" id="param-loan-amount" placeholder="Auto-calculated if 0" value="0" disabled>
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-deposit">Upfront Deposit (€)</label>
+                                <input type="number" id="param-deposit" value="0">
+                            </div>
+
+                            <div class="table-cell empty-cell"></div>
+                            <div class="table-cell">
+                                <label for="param-loan-repayment">Monthly Loan Repayment (€)</label>
+                                <input type="number" id="param-loan-repayment" value="1100">
+                            </div>
+                            <div class="table-cell">
+                                <label for="param-rent-increase">Expected Rent Increase (%/yr)</label>
+                                <input type="number" id="param-rent-increase" value="2.0" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="parameter-actions-wrapper">
+                            <button type="button" id="btn-execute-calculation" onclick="handleManualRecalculate()">
+                                Calculate Break-Even Point
+                            </button>
+                        </div>
+
+                        <!-- Debt Warning Popup (unchanged for JS) -->
+                        <div id="debt-warning-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center;">
+                            <div id="debt-warning-popup" style="background-color: #ffffff; border-top: 5px solid #CC0000; width: clamp(300px, 35vw, 520px); padding: clamp(15px, 1.5vw, 25px); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; animation: popUpFadeIn 0.3s ease-out;">
+                                <button type="button" onclick="hideDebtWarningPopup()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer; font-weight: bold; line-height: 1;">&times;</button>
+                                <h4 id="warning-title" style="color: #CC0000; margin: 0 0 12px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">⚠️ Warning</h4>
+                                <div id="warning-description" style="font-size: 0.9rem; color: #333; line-height: 1.5;"></div>
+                                <button type="button" onclick="hideDebtWarningPopup()" style="width: 100%; margin-top: 15px; background-color: #CC0000; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 600; cursor: pointer;">Adjust Parameters</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="info-panel">
+                    <h2>Region Statistics</h2>
+                    <hr class="panel-divider">
+                    <div id="info-content">
+                        <p class="placeholder-text">Click on any region within Austria to view details.</p>
+                    </div>
+                    <div id="chart-section-wrapper">
+                        <h3>Break-Even Chart — 30-Year Wealth / Net Worth Projection</h3>
+                        <div id="chart-line-toggles">
+                            <label class="toggle-container text-yellow">
+                                <input type="checkbox" id="chk-line-cum-rent" checked onchange="toggleChartLineVisibility()"> User Input Rent
+                            </label>
+                            <label class="toggle-container text-red">
+                                <input type="checkbox" id="chk-line-cum-buy" checked onchange="toggleChartLineVisibility()"> User Input Purchase
+                            </label>
+                            <label class="toggle-container text-green">
+                                <input type="checkbox" id="chk-line-renter" checked
+                                       onchange="toggleChartLineVisibility()"> Avg State/District Rent
+                            </label>
+                            <label class="toggle-container text-blue">
+                                <input type="checkbox" id="chk-line-owner" checked
+                                       onchange="toggleChartLineVisibility()"> Avg State/District Purchase
+                            </label>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="breakEvenChart"></canvas>
+                        </div>
+                        <div id="break-even-summary-text"></div>
+                        <button id="btn-read-more" style="display:none; margin-top: 8px; background: none; border: none; color: #CC0000; font-weight: bold; cursor: pointer; font-size: 0.8rem; text-decoration: underline;" onclick="openDetailModal()">Disclaimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <br>
+    <br>
+    <div class="dashboard-intro-header">
+        <h2>
+            Let's compare <em>the Wealth development</em> in detail! <br>
+        </h2>
+    </div>
+    <br>
+    <br>
+    <section id="page-insights" class="snap-section reveal-on-scroll">
+        <div class="insights-container">
+            <div class="insights-main-column">
+                <div id="allocation-breakdown-wrapper">
+                    <!-- Lock overlay: hidden once user clicks a map region -->
+                    <div id="breakdown-lock-overlay">
+                        <div class="lock-overlay-icon"><span class="material-symbols-outlined">vpn_lock</span></div>
+                        <div class="lock-overlay-title">Select a region first</div>
+                        <p class="lock-overlay-hint">Click on any region in the interactive map above to load regional data and unlock the wealth distribution analysis.</p>
+                    </div>
+
+                    <div class="insights-section-header">
+                        <span class="section-eyebrow">Wealth Analysis</span>
+                        <h2>Annual Wealth Distribution</h2>
+                        <p class="insights-subtitle">Simulate how your wealth is allocated at any point during the 30-year period.</p>
+                    </div>
+
+                    <div class="year-slider-bar">
+                        <label for="breakdown-year-slider" class="slider-label">
+                            Simulation Year: <span id="slider-year-display" class="slider-year-value">0</span>
+                        </label>
+                        <input type="range" id="breakdown-year-slider" min="0" max="30" value="0" step="1" oninput="updateYearlyDistributionCharts()">
+                    </div>
+
+                    <div class="difference-chart-block">
+                        <h5 class="chart-block-title">
+                            Net Worth Direct Comparison
+                            <small>Margin: <strong id="difference-leader-title">0 €</strong></small>
+                        </h5>
+                        <div class="chart-canvas-container-sm">
+                            <canvas id="differenceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="donut-grid">
+                        <div class="donut-card">
+                            <h5 class="chart-block-title donut-title renter-title">
+                                Renting — Wealth Allocation
+                                <small>Net Worth: <strong id="renter-header-networth">0 €</strong></small>
+                            </h5>
+                            <div class="chart-canvas-container-sm">
+                                <canvas id="renterDonutChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="donut-card">
+                            <h5 class="chart-block-title donut-title buyer-title">
+                                Buying — Wealth Allocation
+                                <small>Net Worth: <strong id="buyer-header-networth">0 €</strong></small>
+                            </h5>
+                            <div class="chart-canvas-container-sm">
+                                <canvas id="buyerDonutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="insights-card" id="insight-card-results">
+                        Select a district first ...
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="insights-side-column">
+                <div class="story-card" id="user-input-rentStory">
+                    <div class="card-icon"><span class="material-symbols-outlined">apartment</span></div>
+                    <strong>Renting</strong>
+                    <br>
+                    <br>
+                    Select a region first ...
+                </div>
+                <div class="story-card" id="user-input-buyStory">
+                    <div class="card-icon"><span class="material-symbols-outlined">home_and_garden</span></div>
+                    <strong>Buying</strong>
+                    <br>
+                    <br>
+                    Select a region first ...
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="page-barchart" class="snap-section reveal-on-scroll">
+
+
+        <div id="barchart-viewport-container">
+            <div id="barchart-sidebar">
+                <h2>How would your monthly expenses look like depending on your housing tenure?</h2>
+                <p>This chart compares the total monthly financial burden and financial breakdowns across different housing tenures in Austria.</p>
+                <p>Get a realistic overview and price expectation based on the average housing costs for different tenure types. </p>
+                <p><strong>How to use:</strong> Use the checkboxes to isolate specific housing types. Hover over individual bar segments to view detailed splits. Use the slider / input box to dynamically scale the y-axis, as well as to get an overview of the estimated yearly cost of the housing type. </p>
+                <p>Source: STATISTIK AUSTRIA, EU-SILC 2025.</p>
+            </div>
+
+            <div id="barchart-wrapper">
+                <div class="filter-section">
+                    <h3 class="section-subheading" style="margin-bottom: 8px;">Compare Housing Types</h3>
+                    <div id="barchart-toggles">
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="house_owner" checked> House Owner</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="apt_owner" checked> Apt. Owner</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="municipal" checked> Municipal</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="cooperative" checked> Cooperative</label>
+                        <label class="toggle-container"><input type="checkbox" class="type-toggle" value="other_rent" checked> Other Rent</label>
+                    </div>
+                </div>
+
+                <div id="barchart-chart-wrapper">
+                    <div id="barchart-canvas"></div>
+                    <div id="barchart-tooltip" class="d3-tooltip data-card"></div>
+                </div>
+
+                <div id="calculator-section">
+                    <h3 class="section-heading">Cost Estimator (Based on Average €/m²)</h3>
+                    <div class="calc-grid">
+                        <div class="calc-inputs">
+                            <div class="input-field-block">
+                                <label for="calc-type">Housing Type</label>
+                                <select id="calc-type">
+                                    <option value="house_owner">House Owner</option>
+                                    <option value="apt_owner">Apt. Owner</option>
+                                    <option value="municipal">Municipal Rent</option>
+                                    <option value="cooperative">Cooperative Rent</option>
+                                    <option value="other_rent">Other Rent</option>
+                                </select>
+                            </div>
+                            <div class="input-field-block mt-15">
+                                <label for="calc-number">Property Size (m²)</label>
+                                <div class="slider-group">
+                                    <input type="range" id="calc-slider" min="20" max="300" value="80" step="1">
+                                    <input type="number" id="calc-number" min="20" max="300" value="80">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calc-results data-card">
+                            <div class="result-label">Estimated Yearly Cost</div>
+                            <div class="result-value" id="calc-result">€328.00</div>
+                            <div class="result-formula" id="calc-formula">80 m² × 4.1 €/m²</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="dashboard-intro-header">
+        <br>
+        <br>
+        <div class="story-card">
+            <div class="card-icon"><span class="material-symbols-outlined">map</span></div>
+            <strong>What we learned so far:</strong>
+            <br>
+            <br>
+            <p><span class="material-symbols-outlined">pin_drop</span> You now where in <em>Austria</em> you want to live.</p>
+            <p><span class="material-symbols-outlined">house</span> You know the <em>Purchasing</em> or <em> Renting</em> costs.</p>
+            <p><span class="material-symbols-outlined">trending_up</span> And how much your avg. <em>Housing Costs could be</em></p>
+        </div>
+        <br>
+        <br>
+        <h2>
+            Lets explore how likely it is that you can afford a <em>loan</em> and how other <em>Housholds</em> in Austria live.
+            <br>
+        </h2>
+    </div>
+
+    <section id="page-social" class="snap-section reveal-on-scroll">
+        <div class="social-plots-container">
+
+            <!-- LEFT: Housing Tenure Sunburst -->
+            <div class="social-plot-card">
+                <div class="social-card-header">
+                    <h2>Housing Tenure by Household Type</h2>
+                    <p>How different household types are distributed across ownership and rental arrangements in Austria (EU-SILC 2023).</p>
+                    <div class="group-legend">
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-family')">
+                            <span class="gdot" style="background:#FE6100"></span>Single-family
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Multi-family')">
+                            <span class="gdot" style="background:#DC267F"></span>Multi-family
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-person')">
+                            <span class="gdot" style="background:#648FFF"></span>Single-person
+                        </span>
+                        <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Multi-person (Non-fam)')">
+                            <span class="gdot" style="background:#FFB000"></span>Multi-person (Non-fam)
+                        </span>
+                    </div>
+                    <p class="chart-howto">Click a coloured segment to zoom into that household group - Click the segment or centre again to reset.</p>
+                </div>
+                <div class="sunburst-container" id="sunburst-age-group"></div>
+                <div class="tenure-legend">
+                    <span class="tenure-legend-label">Tenure types (outer ring):</span>
+                    <span class="tenure-legend-item">Owned House</span>
+                    <span class="tenure-legend-item">Owned Flat</span>
+                    <span class="tenure-legend-item">Municipal Housing</span>
+                    <span class="tenure-legend-item">Co-operative</span>
+                    <span class="tenure-legend-item">Private Rental</span>
+                    <span class="tenure-legend-item">Other</span>
+                </div>
+            </div>
+
+            <!-- RIGHT: Income Affordability Boxplot -->
+            <div class="social-plot-card">
+                <div class="social-card-header">
+                    <h2>Income Affordability by Household Type</h2>
+                    <p>What share of households can afford a mortgage under the FMA 40 % debt-service rule?</p>
+                    <p class="chart-howto">Hover over the chart to read income levels - Enter a loan amount below to see the minimum required annual income and the share of households that qualify.</p>
+                </div>
+                <div class="income-chart-container" id="income-cdf-chart"></div>
+                <div class="loan-input-section">
+                    <div class="loan-input-row">
+                        <label for="loan-input">Loan amount <span class="loan-note">(FMA 40 % rule - 3.5 % - 30 yr)</span></label>
+                        <div class="loan-field">
+                            <span class="loan-eur">€</span>
+                            <input type="number" id="loan-input" value="300000" min="0" step="10000"
+                                   oninput="var c=document.querySelector('#income-cdf-chart');c&&c._update&&c._update(+this.value)">
+                        </div>
+                    </div>
+                    <div class="loan-results" id="loan-results"></div>
+                </div>
+                <div class="income-footnote">
+                    Source: STATISTIK AUSTRIA, EU-SILC 2025. Annual net household income percentiles (P10–P90).
+                    The dashed line shows the minimum annual income required to meet the FMA guideline
+                    (annual mortgage payment less than 40 % of net income, 3.5 % over 30 years).
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <section id="page-ending" class="snap-section reveal-on-scroll">
+        <div class="hero-stripe-accent" aria-hidden="true"></div>
+        <div class="ending-layout-wrapper">
+            <div class="ending-header-block">
+                <h1>
+                    It's the <em>Final</em> page!
+                </h1>
+                <p class="ending-intro-text">
+                    After all these texts, statistics, data and visualizations, you made it to the end of our website.
+                    <br><br>
+                    We hope you had a fun and informative time using our website to explore:
+                    <br><br>
+                    - the possibilities of buying or renting properties in the austrian housing market,
+                    <br>
+                    - checking out your possible living and maintenance costs
+                    <br>
+                    - or seeing how likely it would be to get a loan from a bank.
+                    <br><br>
+                    Renting vs Buying is a big question. It will fundamentally change your life.<br>
+                    Therefor you should take your time comparing not only the financial aspects, which you can explore on our website, but your social factors and future plans as well.
+                    <br><br>
+                    Thank you for using our Website:
+                    <br><strong>Lisa Wachter</strong>
+                    <br><strong>Petko Stoyanov</strong>
+                    <br><strong>Bernhard Schmid</strong>
+                </p>
+            </div>
+            <div class="ending-summary-card">
+                <div class="ending-card-icon"><span class="material-symbols-outlined">map</span></div>
+                <strong>Data Sources from: Statistik Austria, EU-SILC (2025) and Willhaben:</strong>
+                <br>
+                <br>
+                <p><span class="material-symbols-outlined">pin_drop </span>Geographical Data Sources</p>
+                    <a href="https://github.com/ginseng666/GeoJSON-TopoJSON-Austria">Geographic map data</a>
+                    <br>
+                    <a href="https://www.willhaben.at/will/immo/mietpreisspiegel#tab-0"> Average rent-price per district, 2025</a>
+                    <br>
+                    <a href="https://www.statistik.at/statistiken/volkswirtschaft-und-oeffentliche-finanzen/preise-und-preisindizes/immobilien-durchschnittspreise"> Avg House/Apartment prices</a>
+                    <br>
+                </p>
+                <p><span class="material-symbols-outlined">house </span>Fianancial and Social Housing Data</p>
+                    <a href="https://www.statistik.at/statistiken/bevoelkerung-und-soziales/wohnen/wohnsituation"> General overview over the avg. financial and social living Situation of Housholds across Austria</a>
+                    <br>
+                    <a href="https://www.statistik.at/statistiken/bevoelkerung-und-soziales/einkommen-und-soziale-lage/haushaltseinkommen">Avg household income</a>
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="interactive_map.js"></script>
+<script src="barchart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="interactive_map.js"></script>
+<script src="social_sunburst.js"></script>
+<script src="social_income.js"></script>
+<script src="social_plot.js"></script>
+<div id="sunburst-tooltip"></div>
+
+<!-- Detail Modal (unchanged IDs for JS compatibility) -->
+<div id="detail-modal-overlay" class="modal-overlay" onclick="closeDetailModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="modal-close-btn" onclick="closeDetailModal()">&times;</span>
+        <h3>Break-Even Calculator Disclaimer</h3>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
+        <div id="modal-detailed-text"></div>
+    </div>
+</div>
+
+<script>
+    // Scroll Reveal Engine
+    document.addEventListener("DOMContentLoaded", () => {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('appeared');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { root: null, threshold: 0.10 });
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => revealObserver.observe(el));
+    });
+
+    // Smooth Nav Scroll
+    document.querySelectorAll('.nav-item').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.getElementById(this.getAttribute('href').substring(1));
+            if (target) {
+                target.classList.add('appeared');
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Active nav highlight
+    window.addEventListener('scroll', () => {
+        const sections = document.querySelectorAll('.snap-section');
+        const navItems = document.querySelectorAll('.nav-item');
+        let active = "";
+        sections.forEach(s => {
+            if (window.scrollY >= s.offsetTop - 70) active = s.id;
+        });
+        navItems.forEach(l => {
+            l.classList.toggle('active', l.getAttribute('href') === `#${active}`);
+        });
+    });
+
+    // Initialise social charts on first intersection
+    const socialSection = document.getElementById('page-social');
+    if (socialSection) {
+        const socialObserver = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                if (typeof window.initSocialPlots === 'function') window.initSocialPlots();
+                socialObserver.disconnect();
+            }
+        }, { threshold: 0.1 });
+        socialObserver.observe(socialSection);
+    }
+
+    // Unlock the breakdown overlay once the chart-section-wrapper gets the .visible class
+    // (added by interactive_map.js when a region is clicked and calculateBreakEven runs)
+    const chartWrapper = document.getElementById('chart-section-wrapper');
+    const lockOverlay  = document.getElementById('breakdown-lock-overlay');
+    if (chartWrapper && lockOverlay) {
+        const observer = new MutationObserver(() => {
+            if (chartWrapper.classList.contains('visible')) {
+                lockOverlay.classList.add('hidden');
+                observer.disconnect();
+            }
+        });
+        observer.observe(chartWrapper, { attributes: true, attributeFilter: ['class'] });
+    }
+</script>
+
+</body>
+</html>
