@@ -199,8 +199,8 @@
                 }
                 tooltipEl.innerHTML = html;
                 tooltipEl.style.opacity = '1';
-                tooltipEl.style.left = (event.pageX + 14) + 'px';
-                tooltipEl.style.top = (event.pageY - 40) + 'px';
+                tooltipEl.style.left = (event.clientX + 14) + 'px';
+                tooltipEl.style.top = (event.clientY - 40) + 'px';
                 d3.select(this).attr('opacity', 0.75);
             })
             .on('mouseleave', function () {

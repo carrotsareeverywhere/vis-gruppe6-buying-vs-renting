@@ -1172,6 +1172,403 @@ body {
     #info-panel { height: 600px; }
 }
 
+/* --- Page 4: Bar Chart --- */
+
+#page-barchart {
+    background: var(--ghost);
+}
+
+#page-barchart header {
+    text-align: center;
+    padding-top: 2rem;
+    margin-bottom: 1rem;
+    margin-top: 0;
+}
+
+#page-barchart header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--ink);
+}
+
+#barchart-viewport-container {
+    display: flex;
+    width: 100%;
+    height: 90%;
+    flex: 1;
+    padding: clamp(12px, 2vw, 24px);
+    gap: clamp(16px, 2.5vw, 32px);
+    overflow: hidden;
+}
+
+/* Sidebar */
+#barchart-sidebar {
+    flex: 0.25;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    justify-content: flex-start;
+    padding: 10px;
+    max-height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+}
+
+#barchart-sidebar h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+    line-height: 1.35;
+    color: var(--ink); /* Swapped from red to ink to match other intro sidebars */
+    font-weight: 700;
+}
+
+#barchart-sidebar p {
+    font-family: var(--font-body);
+    font-size: clamp(0.85rem, 1vw, 0.95rem);
+    line-height: 1.6;
+    color: var(--stone);
+}
+
+#barchart-sidebar strong {
+    color: var(--ink);
+}
+
+/* Main Container */
+#barchart-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--smoke);
+    overflow: hidden;
+    height: 100%;
+}
+
+.filter-section {
+    padding: 20px 24px 10px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--smoke);
+}
+
+.section-subheading {
+    font-family: var(--font-display);
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* Toggles */
+#barchart-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    background: var(--ghost);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--smoke);
+    margin-top: 12px;
+}
+
+#barchart-toggles .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--stone);
+    transition: color 0.2s;
+}
+
+#barchart-toggles .toggle-container:hover {
+    color: var(--ink);
+}
+
+#barchart-toggles input[type="checkbox"] {
+    accent-color: var(--red);
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
+/* Chart Area */
+#barchart-chart-wrapper {
+    flex: 1;
+    min-height: 200px;
+    padding: 10px 25px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#barchart-canvas {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    height: 100%;
+}
+
+/* D3 Tooltip */
+.d3-tooltip {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border-left: 4px solid var(--red);
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--smoke);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 10;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-width: 240px;
+}
+
+.tooltip-title {
+    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--smoke);
+    padding-bottom: 6px;
+}
+
+.tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 6px;
+    color: var(--ink-soft);
+}
+
+.tooltip-value {
+    font-weight: 700;
+}
+
+/* SVG formatting overrides */
+.domain { stroke: var(--smoke); }
+
+.tick line {
+    stroke: var(--smoke);
+}
+
+.tick text {
+    fill: var(--stone);
+    font-family: var(--font-body);
+    font-size: 11px;
+}
+
+.axis-label {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--ink-soft);
+    font-family: var(--font-body);
+}
+
+/* Annotations */
+.inheritance-arrow {
+    stroke: var(--red);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.inheritance-arrowhead {
+    fill: var(--red);
+    opacity: 0.85;
+}
+
+.inheritance-box {
+    fill: var(--white);
+    stroke: var(--smoke);
+    stroke-width: 1px;
+    filter: drop-shadow(var(--shadow-sm));
+}
+
+.inheritance-label-title {
+    font-size: 9px;
+    font-weight: 700;
+    fill: var(--red);
+    font-family: var(--font-body);
+}
+
+.inheritance-label-body {
+    font-size: 8px;
+    font-weight: 500;
+    fill: var(--ink-soft);
+    font-family: var(--font-body);
+}
+
+rect {
+    transition: opacity 0.2s ease;
+}
+
+/* Cost Estimator Bottom Block */
+#calculator-section {
+    padding: 20px 24px;
+    background: var(--ghost);
+    border-top: 1px solid var(--smoke);
+    flex-shrink: 0;
+}
+
+.section-heading {
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    color: var(--ink);
+    margin-bottom: 16px;
+    font-weight: 700;
+    font-family: var(--font-display);
+}
+
+.calc-grid {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.calc-inputs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.input-field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-field-block label {
+    font-size: clamp(0.68rem, 0.8vw, 0.78rem);
+    color: var(--ink-soft);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input-field-block select,
+.slider-group input[type="number"] {
+    padding: clamp(5px, 0.45vw, 9px) clamp(7px, 0.6vw, 11px);
+    font-size: clamp(0.78rem, 0.85vw, 0.88rem);
+    font-family: var(--font-body);
+    border: 1px solid var(--smoke);
+    border-radius: 6px;
+    height: clamp(34px, 2.1vw, 38px);
+    background: var(--white);
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.input-field-block select:focus,
+.slider-group input[type="number"]:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(204,0,0,.1);
+}
+
+.slider-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.slider-group input[type="range"] {
+    flex: 1;
+    accent-color: var(--red);
+}
+
+.slider-group input[type="number"] {
+    width: 85px;
+    text-align: center;
+}
+
+/* Results Box */
+.calc-results {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: var(--white);
+    border: 1px solid var(--smoke);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+/* Red accent stripe mimicking the dashboard cards */
+.calc-results::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--red);
+    border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.result-label {
+    font-size: 0.75rem;
+    color: var(--stone);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.result-value {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: var(--red);
+    margin: 6px 0;
+    line-height: 1;
+}
+
+.result-formula {
+    font-size: 0.75rem;
+    color: var(--stone);
+    background: var(--ghost);
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--smoke);
+    font-family: var(--font-body);
+}
+
+.mt-15 {
+    margin-top: 15px;
+}
+
+@media (max-width: 900px) {
+    #barchart-viewport-container {
+        flex-direction: column;
+        overflow: visible;
+        height: auto;
+    }
+    #barchart-sidebar {
+        flex: none;
+        max-width: 100%;
+        max-height: none;
+        border-bottom: 1px solid var(--smoke);
+        padding-bottom: 20px;
+    }
+    .calc-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .calc-results {
+        padding: 15px;
+    }
+}
+
+
 /* --- Page 3: Social Plot --- */
 #page-social {
     background-color: #f0f4f8;

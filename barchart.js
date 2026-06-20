@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `);
             tooltip.style("opacity", 1);
         }).on("mousemove", function(event) {
-            tooltip.style("left", (event.pageX) + "px").style("top", (event.pageY) + "px");
+            tooltip.style("left", (event.clientX + 30) + "px").style("top", (event.clientY - 40) + "px");
         }).on("mouseout", function() {
             d3.selectAll("rect").style("opacity", 1).style("stroke", "none");
             tooltip.style("opacity", 0);
