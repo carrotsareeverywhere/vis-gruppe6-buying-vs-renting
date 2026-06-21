@@ -4,7 +4,7 @@
     "id": "house_owner",
     "type": "House Owner",
     "avg_sqm": 148.7,
-    "mortgage_rent": 280.00,
+    "mortgage_rent": 0,
     "operating": 82.00,
     "energy": 201.00,
     "misc": 0
@@ -14,7 +14,7 @@
     "id": "apt_owner",
     "type": "Apt. Owner",
     "avg_sqm": 87.2,
-    "mortgage_rent": 269.00,
+    "mortgage_rent": 0,
     "operating": 246.00,
     "energy": 129.00,
     "misc": 0

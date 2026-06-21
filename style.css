@@ -353,7 +353,7 @@ body {
     font-size: inherit;
     vertical-align: middle;
     margin: 0 4px;
-    color: var(--red-dark);
+    color: var(--red);
 }
 
 .story-card strong {
@@ -1443,42 +1443,6 @@ body {
     font-family: var(--font-body);
 }
 
-/* Annotations */
-.inheritance-arrow {
-    stroke: var(--red);
-    stroke-width: 1.5;
-    fill: none;
-}
-
-.inheritance-arrowhead {
-    fill: var(--red);
-    opacity: 0.85;
-}
-
-.inheritance-box {
-    fill: var(--white);
-    stroke: var(--smoke);
-    stroke-width: 1px;
-    filter: drop-shadow(var(--shadow-sm));
-}
-
-.inheritance-label-title {
-    font-size: 9px;
-    font-weight: 700;
-    fill: var(--red);
-    font-family: var(--font-body);
-}
-
-.inheritance-label-body {
-    font-size: 8px;
-    font-weight: 500;
-    fill: var(--ink-soft);
-    font-family: var(--font-body);
-}
-
-rect {
-    transition: opacity 0.2s ease;
-}
 
 /* Cost Estimator Bottom Block */
 #calculator-section {
@@ -1962,6 +1926,7 @@ rect {
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 1.25rem;
+    margin-top: 2rem;
     font-size: 0.95rem;
     line-height: 1.5;
     color: var(--ink-soft);

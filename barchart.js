@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // D3 Stacked Bar Chart Settings
     const keys = ["mortgage_rent", "operating", "energy", "misc"];
     const keyLabels = {
-        "mortgage_rent": "Mortgage / Base Rent",
+        "mortgage_rent": "Base Rent",
         "operating": "Operating / Maintenance",
         "energy": "Energy",
         "misc": "Miscellaneous",
@@ -123,78 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
             tooltip.style("opacity", 0);
         });
 
-        // Annotation box
-        const houseData = scaledData.find(d => d.id === "house_owner");
-        if (houseData) {
-
-            const mortgageLayer = stackedData.find(layer => layer.key === "mortgage_rent");
-            const houseSegment = mortgageLayer ? mortgageLayer.find(d => d.data.id === "house_owner") : null;
-
-            if (houseSegment) {
-                const segTop    = y(houseSegment[1]);
-                const segBottom = y(houseSegment[0]);
-                const segMidY   = (segTop + segBottom) / 2;
-                const barLeftX  = x("House Owner");
-
-
-                const boxW = 85 ;
-                const boxH = 45;
-                const boxX = -margin.left + 3;
-                const boxY = segMidY - boxH / 2;
-
-                const arrowStartX = boxX + boxW;
-                const arrowEndX   = barLeftX - 2;
-
-                const annotGroup = svg.append("g").attr("class", "inheritance-annotation");
-
-                const svgRoot = d3.select("#barchart-canvas svg");
-                svgRoot.select("#arrowhead-marker").remove();
-                const rootDefs = svgRoot.append("defs").attr("id", "arrowhead-marker-defs");
-
-                rootDefs.append("marker")
-                    .attr("id", "arrowhead")
-                    .attr("viewBox", "0 -5 10 10")
-                    .attr("refX", 8).attr("refY", 0)
-                    .attr("markerWidth", 3).attr("markerHeight", 6)
-                    .attr("orient", "auto")
-                    .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#ae0000");
-
-                annotGroup.append("path")
-                    .attr("d", `M${arrowStartX},${segMidY} L${arrowEndX},${segMidY}`)
-                    .attr("stroke", "#ae0000")
-                    .attr("stroke-width", 1.5)
-                    .attr("fill", "none")
-                    .attr("marker-end", "url(#arrowhead)");
-
-                // Box
-                annotGroup.append("rect")
-                    .attr("x", boxX).attr("y", boxY)
-                    .attr("width", boxW).attr("height", boxH)
-                    .attr("rx", 4)
-                    .attr("fill", "rgba(248,249,250,0.97)")
-
-                // Line 1
-                annotGroup.append("text")
-                    .attr("x", boxX + 7).attr("y", boxY + 15)
-                    .style("font-size", "9px").style("font-weight", "700")
-                    .style("fill", "#ae0000").style("font-family", "inherit")
-                    .text("Keep in mind!");
-
-                // Line 2
-                annotGroup.append("text")
-                    .attr("x", boxX + 7).attr("y", boxY + 27)
-                    .style("font-size", "8px").style("font-weight", "500")
-                    .style("fill", "#333").style("font-family", "inherit")
-                    .text("Many pay €0 due");
-
-                // Line 3
-                annotGroup.append("text")
-                    .attr("x", boxX + 7).attr("y", boxY + 38)
-                    .style("font-size", "8px").style("font-weight", "500")
-                    .style("fill", "#333").style("font-family", "inherit")
-                    .text("to inheritance!");
-            }
-        }
 
         // Legend
         const legend = svg.append("g").attr("transform", `translate(${width + 15}, 20)`);
