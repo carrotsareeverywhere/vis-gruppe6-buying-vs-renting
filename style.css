@@ -1861,7 +1861,6 @@ body {
     overflow: hidden;
 }
 
-/* Outer layout matching the max-width of your design system */
 .ending-layout-wrapper {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
@@ -1894,7 +1893,6 @@ body {
     font-weight: 400;
 }
 
-/* Redesigned Isolated Right Side Card Block */
 .ending-summary-card {
     background: var(--card);
     border-radius: 16px;
