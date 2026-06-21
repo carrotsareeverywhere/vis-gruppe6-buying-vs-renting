@@ -37,6 +37,9 @@ let netWorthDifferenceInstance = null;
 let breakEvenYear = null;
 let netWorthDifference = 0;
 
+let currentColorMetric = 'Kaufpreis';
+let currentLayerType = 'states';
+
 let colourBlindMode = false;
 let colorPalette = [
     "#0B3D0B",
@@ -159,8 +162,6 @@ function calculateQuantileThresholds(geoJSONData) {
 
 let map;
 let geojsonLayer;
-let currentLayerType = 'states';
-let currentColorMetric = 'Kaufpreis';
 let activeSelectedProperties = null;
 let breakEvenChartInstance = null;
 let isCalculationTriggered = false;
@@ -220,10 +221,10 @@ function onEachFeature(feature, layer) {
                 contentDiv.innerHTML = `
                     <div class="data-card">
                         <h3>${props.name || 'Unknown Province'}</h3>
-                        <p style="margin-top: 8px;"><strong>Avg. Kaufpreis:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
-                        <p style="margin-top: 4px;"><strong>Avg. Miete:</strong> ${props.miete || 'Data Pending'} (per m²) (€) 
-                        <br> <small>Bestandsmieten sind inkl. Betriebskosten laut Statistik Austria</small> 
-                        <br> <small>Ausgenommen geförderte Gemeindewohnungen in Wien</small>
+                        <p style="margin-top: 8px;"><strong>Avg. Purchasing Price:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
+                        <p style="margin-top: 4px;"><strong>Avg. Rent:</strong> ${props.miete || 'Data Pending'} (per m²) (€) 
+                        <br> <small>Existing rents include operating costs according to Statistics Austria</small> 
+                        <br> <small>Excluding subsidized municipal housing in Vienna (for example Wiener Wohnen)</small>
                         </p>
                     </div>
                 `;
@@ -235,8 +236,8 @@ function onEachFeature(feature, layer) {
                     <div class="data-card">
                         <h3>${props.name || 'Unknown District'}</h3>
                         <p style="color: #666; font-size: 0.9rem;">Bundesland: ${stateName}</p>
-                        <p style="margin-top: 8px;"><strong>Kaufpreis:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
-                        <p style="margin-top: 4px;"><strong>Miete:</strong> ${props.miete || 'Data Pending'} (per m²) (€)</p>
+                        <p style="margin-top: 8px;"><strong>Avg. Purchasing Price:</strong> ${props.Kaufpreis || 'Data Pending'} (per m²) (€)</p>
+                        <p style="margin-top: 4px;"><strong>Avg. Rent:</strong> ${props.miete || 'Data Pending'} (per m²) (€)</p>
                     </div>
                 `;
             }
@@ -315,15 +316,11 @@ function handleManualRecalculate() {
 function toggleChartLineVisibility() {
     if (!breakEvenChartInstance) return;
 
-    const showRenter = document.getElementById('chk-line-renter').checked;
-    const showOwner = document.getElementById('chk-line-owner').checked;
     const showCumRent = document.getElementById('chk-line-cum-rent').checked;
     const showCumBuy = document.getElementById('chk-line-cum-buy').checked;
 
-    breakEvenChartInstance.setDatasetVisibility(0, showRenter);
-    breakEvenChartInstance.setDatasetVisibility(1, showOwner);
-    breakEvenChartInstance.setDatasetVisibility(2, showCumRent);
-    breakEvenChartInstance.setDatasetVisibility(3, showCumBuy);
+    breakEvenChartInstance.setDatasetVisibility(0, showCumRent);
+    breakEvenChartInstance.setDatasetVisibility(1, showCumBuy);
 
     breakEvenChartInstance.update();
 }
@@ -540,101 +537,100 @@ function calculateBreakEven() {
             currentAnnualGeneralExpenses *= (1 + 0.025);
             buyerHomeValue *= (1 + appreciationRate);
             currentAnnualRent *= (1 + rentIncreaseRate);
-        }
 
-        ownerNetWorthData.push(Math.round(ownerNetWorth+=
-            inflationAdjustedIncome
-            + avgKaufpreis*0.04
-            - inputLoanRepayment
-        ));
-        renterNetWorthData.push(Math.round(renterNetWorth+=
-            inflationAdjustedIncome
-            -(currentAnnualRent)
-        ));
 
-        let dynamicAnnualPayment = annualMortgagePayment;
-        let principalRepayment = 0;
+            ownerNetWorthData.push(Math.round(ownerNetWorth+=
+                inflationAdjustedIncome
+                + avgKaufpreis*0.04
+                - inputLoanRepayment
+            ));
+            renterNetWorthData.push(Math.round(renterNetWorth+=
+                inflationAdjustedIncome
+                -(currentAnnualRent)
+            ));
 
-        if (buyerRemainingLoan > 0) {
-            interestPayment = buyerRemainingLoan * mortgageRate;
+            let dynamicAnnualPayment = annualMortgagePayment;
+            let principalRepayment = 0;
 
-            principalRepayment = dynamicAnnualPayment - interestPayment;
+            if (buyerRemainingLoan > 0) {
+                interestPayment = buyerRemainingLoan * mortgageRate;
 
-            // Guard rails in case the user's input is lower than the structural interest requirement
-            if (principalRepayment < 0) {
-                principalRepayment = 0;
-                buyerRemainingLoan += (interestPayment - dynamicAnnualPayment);
-            } else if (principalRepayment > buyerRemainingLoan) {
-                // If the payment is larger than the final remaining debt it is capped
-                principalRepayment = buyerRemainingLoan;
-                dynamicAnnualPayment = interestPayment + principalRepayment;
-                buyerRemainingLoan = 0;
+                principalRepayment = dynamicAnnualPayment - interestPayment;
+
+                // Guard rails in case the user's input is lower than the structural interest requirement
+                if (principalRepayment < 0) {
+                    principalRepayment = 0;
+                    buyerRemainingLoan += (interestPayment - dynamicAnnualPayment);
+                } else if (principalRepayment > buyerRemainingLoan) {
+                    // If the payment is larger than the final remaining debt it is capped
+                    principalRepayment = buyerRemainingLoan;
+                    dynamicAnnualPayment = interestPayment + principalRepayment;
+                    buyerRemainingLoan = 0;
+                } else {
+                    buyerRemainingLoan -= principalRepayment;
+                }
             } else {
-                buyerRemainingLoan -= principalRepayment;
+                dynamicAnnualPayment = 0;
             }
-        } else {
-            dynamicAnnualPayment = 0;
-        }
 
-        let ratioPaid = 1.0;
-        if (loanAmount > 0) {
-            ratioPaid = (loanAmount - buyerRemainingLoan) / loanAmount;
-            if (ratioPaid < 0) ratioPaid = 0;
-        }
+            let ratioPaid = 1.0;
+            if (loanAmount > 0) {
+                ratioPaid = (loanAmount - buyerRemainingLoan) / loanAmount;
+                if (ratioPaid < 0) ratioPaid = 0;
+            }
 
-        let ownerHomeEquityValue = buyerHomeValue * ratioPaid;
-        let annualMaintenance = buyerHomeValue * maintenanceRate;
+            let ownerHomeEquityValue = buyerHomeValue * ratioPaid;
+            let annualMaintenance = buyerHomeValue * maintenanceRate;
 
-        let buyerSurplus = currentAnnualIncome - dynamicAnnualPayment - annualMaintenance - currentAnnualGeneralExpenses;
-        buyerSavingsAccount += buyerSurplus;
-        let newBuyerSp = inflationAdjustedIncome - inputLoanRepayment;
-        buyerSavingsAccount2 += buyerSurplus;
+            let buyerSurplus = currentAnnualIncome - dynamicAnnualPayment - annualMaintenance - currentAnnualGeneralExpenses;
+            buyerSavingsAccount += buyerSurplus;
+            let newBuyerSp = inflationAdjustedIncome - inputLoanRepayment;
+            buyerSavingsAccount2 += buyerSurplus;
 
-        let totalBuyerNetWorth = ownerHomeEquityValue + buyerSavingsAccount;
-        cumulativePurchasePaidData.push(Math.round(totalBuyerNetWorth));
+            let totalBuyerNetWorth = ownerHomeEquityValue + buyerSavingsAccount;
+            cumulativePurchasePaidData.push(Math.round(totalBuyerNetWorth));
 
-        let renterSurplus = currentAnnualIncome - currentAnnualRent - currentAnnualGeneralExpenses;
-        let totalRenterNetWorth = renterSavingsAccount + rentDeposit;
+            let renterSurplus = currentAnnualIncome - currentAnnualRent - currentAnnualGeneralExpenses;
 
-        if(year === 1){
-            renterSavingsAccount += renterSurplus;
+            if (year > 0) {
+                renterSavingsAccount += renterSurplus;
+            }
+            let totalRenterNetWorth = renterSavingsAccount + rentDeposit;
+
             cumulativeRentPaidData.push(Math.round(totalRenterNetWorth));
-        }else {
-            renterSavingsAccount += renterSurplus;
-            cumulativeRentPaidData.push(Math.round(totalRenterNetWorth));
-        }
 
-        distributionCache.renterHistory.push({
-            netWorth: totalRenterNetWorth,
-            saved: {
-                "Income Savings": Math.max(0, renterSavingsAccount),
-            },
-            spent: {
-                "Rent Paid": currentAnnualRent,
-                "Rental Deposit": rentDeposit*3,
-                "Avg. Living Expenses": currentAnnualGeneralExpenses
+            distributionCache.renterHistory.push({
+                netWorth: totalRenterNetWorth,
+                saved: {
+                    "Income Savings": Math.max(0, renterSavingsAccount),
+                },
+                spent: {
+                    "Rent Paid": currentAnnualRent,
+                    "Rental Deposit": rentDeposit*3,
+                    "Avg. Living Expenses": currentAnnualGeneralExpenses
+                }
+            });
+
+            distributionCache.buyerHistory.push({
+                netWorth: totalBuyerNetWorth,
+                saved: {
+                    "Income Savings": Math.max(0, buyerSavingsAccount2),
+                    "Home Equity Value": Math.max(0, ownerHomeEquityValue)
+                },
+                spent: {
+                    "Mortgage Interest Paid": interestPayment,
+                    "Property Maintenance Costs": annualMaintenance,
+                    "Living Expenses": currentAnnualGeneralExpenses,
+                    "Remaining Unpaid Loan Principal": buyerRemainingLoan
+                }
+            });
+
+            //Timeline Comparison
+            labels.push(`Year ${year}`);
+
+            if (breakEvenYear === null && totalBuyerNetWorth > totalRenterNetWorth) {
+                breakEvenYear = year;
             }
-        });
-
-        distributionCache.buyerHistory.push({
-            netWorth: totalBuyerNetWorth,
-            saved: {
-                "Income Savings": Math.max(0, buyerSavingsAccount2),
-                "Home Equity Value": Math.max(0, ownerHomeEquityValue)
-            },
-            spent: {
-                "Mortgage Interest Paid": interestPayment,
-                "Property Maintenance Costs": annualMaintenance,
-                "Living Expenses": currentAnnualGeneralExpenses,
-                "Remaining Unpaid Loan Principal": buyerRemainingLoan
-            }
-        });
-
-        //Timeline Comparison
-        labels.push(`Year ${year}`);
-
-        if (breakEvenYear === null && totalBuyerNetWorth > totalRenterNetWorth) {
-            breakEvenYear = year;
         }
     }
 
@@ -646,6 +642,14 @@ function calculateBreakEven() {
 
 function inputExceptionHandler(){
 
+    buySize = parseFloat(document.getElementById("param-buy-size").value);
+    monthlyIncome = parseFloat(document.getElementById("param-income").value);
+    downPayment = parseFloat(document.getElementById("param-capital").value);
+    inputPriceM2 = parseFloat(document.getElementById("param-price-m2").value);
+    inputLoanAmount = parseFloat(document.getElementById("param-loan-amount").value);
+    inputLoanRepayment = parseFloat(document.getElementById("param-loan-repayment").value);
+    avgMonthlyExpenses = parseFloat(document.getElementById("param-monthly-expenses").value);
+
     const banner = document.getElementById('debt-warning-overlay');
     const warningTitle = document.getElementById('warning-title');
     const warningDescription = document.getElementById('warning-description');
@@ -654,16 +658,16 @@ function inputExceptionHandler(){
         // Condition 1: Monthly loan repayment exceeds total household income
         warningTitle.innerHTML = `⚠️ Repayment Exceeds Income`;
         warningDescription.innerHTML = `
-        <p>Your entered monthly loan repayment of <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> is higher than your total net monthly income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p>Your entered monthly loan repayment of <strong>${inputLoanRepayment.toLocaleString('de-AT')} €</strong> is higher than your total net monthly income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong> minus your avg. monthly expenses <strong>${avgMonthlyExpenses.toLocaleString('de-AT')} €</strong></p>
         <p style="margin-top: 8px; color: #666;">You cannot commit to a mortgage payment that exceeds your total earnings. Please lower the repayment amount or increase the household income parameter.</p>
     `;
         banner.style.display = 'flex'; // Uses flex layout to center the popup box
 
-    } else if (monthlyIncome < monthlyRent) {
+    } else if (monthlyIncome-avgMonthlyExpenses < monthlyRent) {
         // Condition 2: Base rent cost exceeds total household income
         warningTitle.innerHTML = `⚠️ Rent Exceeds Income`;
         warningDescription.innerHTML = `
-        <p>The baseline monthly rent of <strong>${monthlyRent.toLocaleString('de-AT')} €</strong> for this district is greater than your total monthly net household income of <strong>${monthlyIncome.toLocaleString('de-AT')} €</strong>.</p>
+        <p>The baseline monthly rent of <strong>${monthlyRent.toLocaleString('de-AT')} €</strong> for this district is greater than your monthly available household income of <strong>${(monthlyIncome-avgMonthlyExpenses).toLocaleString('de-AT')} €</strong>.</p>
         <p style="margin-top: 8px; color: #666;">This renders the renting strategy unviable. Please adjust the desired rental property size down or increase income parameters.</p>
     `;
         banner.style.display = 'flex';
@@ -700,8 +704,8 @@ function inputExceptionHandler(){
     `;
         banner.style.display = 'flex';
     } else {
-        // Everything is completely valid, secure the view
-        banner.style.display = 'none';
+            // Everything is completely valid, secure the view
+            banner.style.display = 'none';
     }
 }
 
@@ -719,10 +723,8 @@ function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyDat
 
     if (breakEvenChartInstance) {
         breakEvenChartInstance.data.labels = labels;
-        breakEvenChartInstance.data.datasets[0].data = rentData;
-        breakEvenChartInstance.data.datasets[1].data = buyData;
-        breakEvenChartInstance.data.datasets[2].data = cumRentData;
-        breakEvenChartInstance.data.datasets[3].data = cumBuyData;
+        breakEvenChartInstance.data.datasets[0].data = cumRentData;
+        breakEvenChartInstance.data.datasets[1].data = cumBuyData;
         toggleChartLineVisibility();
     } else {
         breakEvenChartInstance = new Chart(ctx, {
@@ -730,10 +732,8 @@ function renderLineChartCanvas(labels, rentData, buyData, cumRentData, cumBuyDat
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Renter Value', data: rentData, borderColor: '#2e7d32', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
-                    { label: 'Owner Value', data: buyData, borderColor: '#0066cc', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, pointRadius: 0, fill: false },
-                    { label: 'User input Rent Value', data: cumRentData, borderColor: '#e6a23c', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
-                    { label: 'User input Purchase Value', data: cumBuyData, borderColor: '#ae0000', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
+                    { label: 'User input Rent Value', data: cumRentData, borderColor: '#e65100', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
+                    { label: 'User input Purchase Value', data: cumBuyData, borderColor: '#0066cc', backgroundColor: 'transparent', borderWidth: 2, tension: 0.1, pointRadius: 1, fill: false },
                 ]
             },
             options: {
@@ -803,9 +803,9 @@ function updateYearlyDistributionCharts() {
 // Determine the leader to style the margin text color contextually
     let marginTextColor = "#718096";
     if (renterNetWorth > buyerNetWorth) {
-        marginTextColor = "#2e7d32"; // Green if Renter is ahead
+        marginTextColor = colorPalette[10];
     } else if (buyerNetWorth > renterNetWorth) {
-        marginTextColor = "#0066cc"; // Blue if Owner is ahead
+        marginTextColor = colorPalette[1];
     }
 
     const leaderTitleElement = document.getElementById('difference-leader-title');
@@ -830,7 +830,7 @@ function updateYearlyDistributionCharts() {
                     {
                         label: 'Renter Net Worth',
                         data: [renterNetWorth],
-                        backgroundColor: '#2e7d32', // Matches your renter donut colors
+                        backgroundColor: '#e65100', // Matches your renter donut colors
                         borderRadius: 4,
                         barThickness: 25
                     },
@@ -968,9 +968,9 @@ function updateBreakEvenSummary(purchaseData, rentData) {
     netWorthDifference = Math.abs(finalRenterNetWorth - finalOwnerNetWorth);
     const winner = finalRenterNetWorth > finalOwnerNetWorth ? "Renter" : "Property Owner";
 
-    for (let year = 0; year < 30; year++) {
+    for (let year = 1; year < 30; year++) {
         if (purchaseData[year] > rentData[year]) {
-            breakEvenYear = year + 1;
+            breakEvenYear = year;
             break;
         }
     }

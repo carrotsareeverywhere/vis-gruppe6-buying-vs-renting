@@ -854,10 +854,8 @@ body {
 
 .toggle-container input { cursor: pointer; accent-color: currentColor; }
 
-.text-yellow { color: #B07D04; }
-.text-red    { color: var(--red); }
-.text-green  { color: #2E7D32; }
-.text-blue   { color: #0055AA; }
+.text-yellow { color: #e65100; }
+.text-red    { color: #0066cc; }
 
 .chart-canvas-container {
     position: relative;
