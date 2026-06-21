@@ -428,13 +428,15 @@
             <div class="social-plot-card">
                 <div class="social-card-header">
                     <h2>Housing Tenure by Household Type</h2>
-                    <p>How different household types are distributed across ownership and rental arrangements in Austria (EU-SILC 2023).</p>
+                    <p>Where do people like you actually live and how common is your situation?
+                    This chart shows what share of each household type owns or rents their home in Austria.
+                    Find your household type in the legend, click it to zoom in, and see how Austria's ~4.2 million households are distributed across ownership and rental arrangements.</p>
                     <div class="group-legend">
                         <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-family')">
-                            <span class="gdot" style="background:#FE6100"></span>Single-family
+                            <span class="gdot" style="background:#DC267F"></span>Single-family
                         </span>
                         <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Multi-family')">
-                            <span class="gdot" style="background:#DC267F"></span>Multi-family
+                            <span class="gdot" style="background:#FE6100"></span>Multi-family
                         </span>
                         <span class="group-legend-item" onclick="var c=document.querySelector('#sunburst-age-group');c&&c.zoomByName&&c.zoomByName('Single-person')">
                             <span class="gdot" style="background:#648FFF"></span>Single-person
@@ -443,7 +445,7 @@
                             <span class="gdot" style="background:#FFB000"></span>Multi-person (Non-fam)
                         </span>
                     </div>
-                    <p class="chart-howto">Click a coloured segment to zoom into that household group - Click the segment or centre again to reset.</p>
+                    <p class="chart-howto"><strong>How to use:</strong> Click a coloured segment to zoom into that household group - Click the segment or centre again to reset.</p>
                 </div>
                 <div class="sunburst-container" id="sunburst-age-group"></div>
                 <div class="tenure-legend">
@@ -460,9 +462,11 @@
             <!-- RIGHT: Income Affordability Boxplot -->
             <div class="social-plot-card">
                 <div class="social-card-header">
-                    <h2>Income Affordability by Household Type</h2>
-                    <p>What share of households can afford a mortgage under the FMA 40 % debt-service rule?</p>
-                    <p class="chart-howto">Hover over the chart to read income levels - Enter a loan amount below to see the minimum required annual income and the share of households that qualify.</p>
+                    <h2>Can Households Like Mine Afford a Mortgage?</h2>
+                    <p>Would a bank even consider giving you a loan and how does your income compare to others in your situation?
+                    Under the FMA guideline, annual mortgage repayments must not exceed 40 % of net household income.
+                    Enter your target loan amount below to see the minimum annual income required, and what share of households in each group would actually qualify.</p>
+                    <p class="chart-howto"><strong>How to use:</strong> Hover over the chart to read income levels - Enter a loan amount below to update the threshold line and affordability shares.</p>
                 </div>
                 <div class="income-chart-container" id="income-cdf-chart"></div>
                 <div class="loan-input-section">

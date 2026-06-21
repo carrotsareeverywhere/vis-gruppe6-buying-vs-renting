@@ -1644,8 +1644,8 @@ body {
 }
 
 .social-card-header p {
-    font-size: 0.72rem;
-    color: #888;
+    font-size: 0.9rem;
+    color: var(--ink);
     margin-bottom: 8px;
 }
 
@@ -1844,9 +1844,8 @@ body {
 
 .chart-howto {
     margin: 6px 0 0;
-    font-size: 0.70rem;
+    font-size: 0.9rem;
     color: #7a8fa6;
-    font-style: italic;
     line-height: 1.5;
 }
 
