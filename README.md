@@ -30,6 +30,7 @@ python -m http.server 8000 --bind 127.0.0.1
 - Navigate to the folder where your index.html file is located using the cd command: 
   - cd /path/to/your/project/folder
 - Run the built-in Python HTTP server module: python3 -m http.server 8000
+- open the index.html file
 
 ## How to run locally (with XAMPP/Apache server)
 
